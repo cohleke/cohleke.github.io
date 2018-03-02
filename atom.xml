@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://cohleke.github.io/"/>
-  <updated>2018-02-28T02:42:12.078Z</updated>
+  <updated>2018-03-02T02:47:24.779Z</updated>
   <id>https://cohleke.github.io/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>webviewclient WebChromeClient</title>
+    <link href="https://cohleke.github.io/2018/03/02/WebChromeClient/"/>
+    <id>https://cohleke.github.io/2018/03/02/WebChromeClient/</id>
+    <published>2018-03-02T02:34:18.000Z</published>
+    <updated>2018-03-02T02:47:24.779Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="WebViewClient"><a href="#WebViewClient" class="headerlink" title="WebViewClient"></a>WebViewClient</h2><p> WebViewClient中的常用方法有<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">onPageFinished(WebView view, String url)</span><br><span class="line">onPageStarted(WebView view, String url, Bitmap favicon)</span><br><span class="line">onReceivedSslError(WebView view, SslErrorHandler handler, SslError error)</span><br><span class="line">shouldInterceptRequest(WebView view, String url)</span><br><span class="line">shouldOverrideUrlLoading(WebView view, String url)</span><br></pre></td></tr></table></figure></p><p>等,以上方法都是webview中请求过程等事件的处理方法.</p><h2 id="WebChromeClient"><a href="#WebChromeClient" class="headerlink" title="WebChromeClient"></a>WebChromeClient</h2><p>WebChromeClient中的常用方法有<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">onCloseWindow(WebView window)</span><br><span class="line">onConsoleMessage(ConsoleMessage consoleMessage)</span><br><span class="line">onJsAlert(WebView view, String url, String message, JsResult result)</span><br><span class="line">onJsConfirm(WebView view, String url, String message, JsResult result)</span><br><span class="line">onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result)</span><br><span class="line">onPermissionRequest(PermissionRequest request)</span><br><span class="line">onReceivedIcon(WebView view, Bitmap icon)</span><br><span class="line">onReceivedTitle(WebView view, String title)</span><br><span class="line">onShowFileChooser(WebView webView, ValueCallback&lt;Uri[]&gt; filePathCallback, WebChromeClient.FileChooserParams fileChooserParams)</span><br></pre></td></tr></table></figure></p><p>等,以上方法都是webview和用户之间有交互的一些方法,如JS弹窗,文件选择弹窗,窗口关闭等</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;WebViewClient&quot;&gt;&lt;a href=&quot;#WebViewClient&quot; class=&quot;headerlink&quot; title=&quot;WebViewClient&quot;&gt;&lt;/a&gt;WebViewClient&lt;/h2&gt;&lt;p&gt; WebViewClient中的常用方法有&lt;br&gt; 
+      
+    
+    </summary>
+    
+      <category term="webview" scheme="https://cohleke.github.io/categories/webview/"/>
+    
+    
+      <category term="webviewclient" scheme="https://cohleke.github.io/tags/webviewclient/"/>
+    
+      <category term="WebChromeClient" scheme="https://cohleke.github.io/tags/WebChromeClient/"/>
+    
+      <category term="webview" scheme="https://cohleke.github.io/tags/webview/"/>
+    
+  </entry>
   
   <entry>
     <title>Hello World</title>
