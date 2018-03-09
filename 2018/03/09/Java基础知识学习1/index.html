@@ -13,25 +13,25 @@
     
     
     
-    <title>webviewclient WebChromeClient | 科长 | 你必须非常努力 才能看起来毫不费力</title>
+    <title>Java基础知识学习1 | 科长 | 你必须非常努力 才能看起来毫不费力</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     
     <meta name="theme-color" content="#3F51B5">
     
     
-    <meta name="keywords" content="webview,Android">
-    <meta name="description" content="WebViewClientWebViewClient中的常用方法有 onPageFinished(WebView view, String url) onPageStarted(WebView view, String url, Bitmap favicon) onReceivedSslError(WebView view, SslErrorHandler handler, SslError er">
-<meta name="keywords" content="webview,Android">
+    <meta name="keywords" content="Java">
+    <meta name="description" content="问题Java中有哪几种引用？它们的含义和区别是什么？请用Java实现一个线程安全且高效的单例模式。">
+<meta name="keywords" content="Java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="webviewclient WebChromeClient">
-<meta property="og:url" content="https://cohleke.github.io/2018/03/02/WebChromeClient/index.html">
+<meta property="og:title" content="Java基础知识学习1">
+<meta property="og:url" content="https://cohleke.github.io/2018/03/09/Java基础知识学习1/index.html">
 <meta property="og:site_name" content="科长">
-<meta property="og:description" content="WebViewClientWebViewClient中的常用方法有 onPageFinished(WebView view, String url) onPageStarted(WebView view, String url, Bitmap favicon) onReceivedSslError(WebView view, SslErrorHandler handler, SslError er">
+<meta property="og:description" content="问题Java中有哪几种引用？它们的含义和区别是什么？请用Java实现一个线程安全且高效的单例模式。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-03-09T14:42:55.040Z">
+<meta property="og:updated_time" content="2018-03-09T14:43:03.410Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="webviewclient WebChromeClient">
-<meta name="twitter:description" content="WebViewClientWebViewClient中的常用方法有 onPageFinished(WebView view, String url) onPageStarted(WebView view, String url, Bitmap favicon) onReceivedSslError(WebView view, SslErrorHandler handler, SslError er">
+<meta name="twitter:title" content="Java基础知识学习1">
+<meta name="twitter:description" content="问题Java中有哪几种引用？它们的含义和区别是什么？请用Java实现一个线程安全且高效的单例模式。">
     
         <link rel="alternate" type="application/atom+xml" title="科长" href="/atom.xml">
     
@@ -105,7 +105,7 @@
         <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
           <i class="icon icon-lg icon-navicon"></i>
         </a>
-        <div class="flex-col header-title ellipsis">webviewclient WebChromeClient</div>
+        <div class="flex-col header-title ellipsis">Java基础知识学习1</div>
         
         <div class="search-wrap" id="search-wrap">
             <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
@@ -127,15 +127,15 @@
 <header class="content-header post-header">
 
     <div class="container fade-scale">
-        <h1 class="title">webviewclient WebChromeClient</h1>
+        <h1 class="title">Java基础知识学习1</h1>
         <h5 class="subtitle">
             
-                <time datetime="2018-03-02T02:34:18.000Z" itemprop="datePublished" class="page-time">
-  2018-03-02
+                <time datetime="2018-03-09T14:40:12.000Z" itemprop="datePublished" class="page-time">
+  2018-03-09
 </time>
 
 
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Android/">Android</a></li></ul>
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Java/">Java</a></li></ul>
 
             
         </h5>
@@ -152,21 +152,21 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#WebViewClient"><span class="post-toc-number">1.</span> <span class="post-toc-text">WebViewClient</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#WebViewClient中的常用方法有"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">WebViewClient中的常用方法有</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#WebChromeClient"><span class="post-toc-number">2.</span> <span class="post-toc-text">WebChromeClient</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#WebChromeClient中的常用方法有"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">WebChromeClient中的常用方法有</span></a></li></ol></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#问题"><span class="post-toc-number">1.</span> <span class="post-toc-text">问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Java中有哪几种引用？它们的含义和区别是什么？"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">Java中有哪几种引用？它们的含义和区别是什么？</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#请用Java实现一个线程安全且高效的单例模式。"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">请用Java实现一个线程安全且高效的单例模式。</span></a></li></ol></li></ol>
         </nav>
     </aside>
 
 
-<article id="post-WebChromeClient"
+<article id="post-Java基础知识学习1"
   class="post-article article-type-post fade" itemprop="blogPost">
 
     <div class="post-card">
-        <h1 class="post-card-title">webviewclient WebChromeClient</h1>
+        <h1 class="post-card-title">Java基础知识学习1</h1>
         <div class="post-meta">
-            <time class="post-time" title="2018-03-02 10:34:18" datetime="2018-03-02T02:34:18.000Z"  itemprop="datePublished">2018-03-02</time>
+            <time class="post-time" title="2018-03-09 22:40:12" datetime="2018-03-09T14:40:12.000Z"  itemprop="datePublished">2018-03-09</time>
 
             
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Android/">Android</a></li></ul>
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Java/">Java</a></li></ul>
 
 
 
@@ -178,27 +178,7 @@
 
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
-            <h2 id="WebViewClient"><a href="#WebViewClient" class="headerlink" title="WebViewClient"></a>WebViewClient</h2><h3 id="WebViewClient中的常用方法有"><a href="#WebViewClient中的常用方法有" class="headerlink" title="WebViewClient中的常用方法有"></a>WebViewClient中的常用方法有</h3><ul>
-<li>onPageFinished(WebView view, String url)</li>
-<li>onPageStarted(WebView view, String url, Bitmap favicon)</li>
-<li>onReceivedSslError(WebView view, SslErrorHandler handler, SslError error)</li>
-<li>shouldInterceptRequest(WebView view, String url)</li>
-<li>shouldOverrideUrlLoading(WebView view, String url)</li>
-</ul>
-<p>等,以上方法都是webview中请求过程等事件的处理方法.</p>
-<h2 id="WebChromeClient"><a href="#WebChromeClient" class="headerlink" title="WebChromeClient"></a>WebChromeClient</h2><h3 id="WebChromeClient中的常用方法有"><a href="#WebChromeClient中的常用方法有" class="headerlink" title="WebChromeClient中的常用方法有"></a>WebChromeClient中的常用方法有</h3><ul>
-<li>onCloseWindow(WebView window)</li>
-<li>onConsoleMessage(ConsoleMessage consoleMessage)</li>
-<li>onJsAlert(WebView view, String url, String message, JsResult result)</li>
-<li>onJsConfirm(WebView view, String url, String message, JsResult result)</li>
-<li>onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result)</li>
-<li>onPermissionRequest(PermissionRequest request)</li>
-<li>onReceivedIcon(WebView view, Bitmap icon)</li>
-<li>onReceivedTitle(WebView view, String title)</li>
-<li>onShowFileChooser(WebView webView, ValueCallback&lt;Uri[]&gt; filePathCallback, WebChromeClient.FileChooserParams fileChooserParams)</li>
-</ul>
-<p>等,以上方法都是webview和用户之间有交互的一些方法,如JS弹窗,文件选择弹窗,窗口关闭等</p>
-
+            <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><h3 id="Java中有哪几种引用？它们的含义和区别是什么？"><a href="#Java中有哪几种引用？它们的含义和区别是什么？" class="headerlink" title="Java中有哪几种引用？它们的含义和区别是什么？"></a>Java中有哪几种引用？它们的含义和区别是什么？</h3><h3 id="请用Java实现一个线程安全且高效的单例模式。"><a href="#请用Java实现一个线程安全且高效的单例模式。" class="headerlink" title="请用Java实现一个线程安全且高效的单例模式。"></a>请用Java实现一个线程安全且高效的单例模式。</h3>
         </div>
 
         <blockquote class="post-copyright">
@@ -206,12 +186,12 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2018-03-09T14:42:55.040Z" itemprop="dateUpdated">2018-03-09 22:42:55</time>
+    最后更新时间：<time datetime="2018-03-09T14:43:03.410Z" itemprop="dateUpdated">2018-03-09 22:43:03</time>
 </span><br>
 
 
         
-        如需转发请与我联系，获得允许之后请注明出处：<a href="/2018/03/02/WebChromeClient/" target="_blank" rel="external">https://cohleke.github.io/2018/03/02/WebChromeClient/</a>
+        如需转发请与我联系，获得允许之后请注明出处：<a href="/2018/03/09/Java基础知识学习1/" target="_blank" rel="external">https://cohleke.github.io/2018/03/09/Java基础知识学习1/</a>
         
     </div>
     
@@ -232,7 +212,7 @@
 
         <div class="post-footer">
             
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webview/">webview</a></li></ul>
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li></ul>
 
 
             
@@ -242,7 +222,7 @@
 <div class="page-share" id="pageShare">
     <ul class="reset share-icons">
       <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2018/03/02/WebChromeClient/&title=《webviewclient WebChromeClient》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2018/03/09/Java基础知识学习1/&title=《Java基础知识学习1》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
           <i class="icon icon-weibo"></i>
         </a>
       </li>
@@ -252,22 +232,22 @@
         </a>
       </li>
       <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/03/02/WebChromeClient/&title=《webviewclient WebChromeClient》 — 科长&source=" data-title=" QQ">
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/03/09/Java基础知识学习1/&title=《Java基础知识学习1》 — 科长&source=" data-title=" QQ">
           <i class="icon icon-qq"></i>
         </a>
       </li>
       <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2018/03/02/WebChromeClient/" data-title=" Facebook">
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2018/03/09/Java基础知识学习1/" data-title=" Facebook">
           <i class="icon icon-facebook"></i>
         </a>
       </li>
       <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《webviewclient WebChromeClient》 — 科长&url=https://cohleke.github.io/2018/03/02/WebChromeClient/&via=https://cohleke.github.io" data-title=" Twitter">
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Java基础知识学习1》 — 科长&url=https://cohleke.github.io/2018/03/09/Java基础知识学习1/&via=https://cohleke.github.io" data-title=" Twitter">
           <i class="icon icon-twitter"></i>
         </a>
       </li>
       <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2018/03/02/WebChromeClient/" data-title=" Google+">
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2018/03/09/Java基础知识学习1/" data-title=" Google+">
           <i class="icon icon-google-plus"></i>
         </a>
       </li>
@@ -287,16 +267,16 @@
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between">
-  
-    <div class="waves-block waves-effect prev">
-      <a href="/2018/03/03/理解Java中的synchronized关键字/" id="post-prev" class="post-nav-link">
-        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
-        <h4 class="title">理解Java中的Synchronized关键字</h4>
-      </a>
-    </div>
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
   
 
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/03/08/关于序列化的知识/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">关于序列化的知识</h4>
+      </a>
+    </div>
   
 </nav>
 
@@ -388,7 +368,7 @@
 <div class="global-share" id="globalShare">
     <ul class="reset share-icons">
       <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2018/03/02/WebChromeClient/&title=《webviewclient WebChromeClient》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2018/03/09/Java基础知识学习1/&title=《Java基础知识学习1》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
           <i class="icon icon-weibo"></i>
         </a>
       </li>
@@ -398,22 +378,22 @@
         </a>
       </li>
       <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/03/02/WebChromeClient/&title=《webviewclient WebChromeClient》 — 科长&source=" data-title=" QQ">
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/03/09/Java基础知识学习1/&title=《Java基础知识学习1》 — 科长&source=" data-title=" QQ">
           <i class="icon icon-qq"></i>
         </a>
       </li>
       <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2018/03/02/WebChromeClient/" data-title=" Facebook">
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2018/03/09/Java基础知识学习1/" data-title=" Facebook">
           <i class="icon icon-facebook"></i>
         </a>
       </li>
       <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《webviewclient WebChromeClient》 — 科长&url=https://cohleke.github.io/2018/03/02/WebChromeClient/&via=https://cohleke.github.io" data-title=" Twitter">
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Java基础知识学习1》 — 科长&url=https://cohleke.github.io/2018/03/09/Java基础知识学习1/&via=https://cohleke.github.io" data-title=" Twitter">
           <i class="icon icon-twitter"></i>
         </a>
       </li>
       <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2018/03/02/WebChromeClient/" data-title=" Google+">
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2018/03/09/Java基础知识学习1/" data-title=" Google+">
           <i class="icon icon-google-plus"></i>
         </a>
       </li>
@@ -424,7 +404,7 @@
 <div class="page-modal wx-share" id="wxShare">
     <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLUlEQVR42u3aO27DMBAFQN//0gqQKk3o95ZOAFHDSkgkmaNisR++XvG6vld+z/Vjre9vn9paGBgYt2Vcy/UbY/2X9fV6u+v7f30WAwPjAYw2gK5fuv4E6zfkz2JgYGDkATRP9dqtY2BgYMwCbhJek1RyTcXAwMCYFbFt0y1PFvOi9wO1OAYGxg0Z7WDgP6//cL6BgYFxE8ZVrp2fb99Z7AoDA+NoRj6ezEvZnXI0b9hFOSkGBsahjPXm2nbbpw6TRR8aAwPjUEbbxN+pKNumW/J+DAyMJzBmTfl26+2b8xIXAwPjOYy6XIzTynb8uV9IY2BgnM1oQ1veJtv57zCFxcDAOI6RBMT2sNcslWzbbRgYGE9m7ATH/aQwSQQxMDCeyUgK2lmIzEN5/h4MDIwnM9qxYk7ab+cN5xsYGBgHMfKDETttsiRkt0NQDAyMsxmzY1g784c2NCefDwMD42xG3hqbBc28nTdr0kVnRjAwMA5i7G+6HYLuNPWiYQMGBsYRjLYc3QmmSWI3PPaBgYHxAEaborVF7CzdzI+RYWBgnM1oG2rtUDPBzw6KvUkQMTAwDmJc5Wo31A5H8+CLgYHxHMZOmMvTuFlobgtmDAyMsxmzkWR+3SaI+Yd4tZUuBgbGzRl5kC2OO3x0vfl1DAwMjHLouNNuyw9hDAMuBgbGYxjt4bA2KRyOMDEwMI5m5MOAfFQwa+vPmnQYGBhnM3YKyP3B5OyQxxCDgYFxP8YXuK5qmFdaHv0AAAAASUVORK5CYII=" alt="微信分享二维码">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIUlEQVR42u3aQY7DIAwF0N7/0pntSDMl34ZWCjxWVZMCb+PamNcrHtefser930/z+ZsDAwPjsYxrOHqM8SpjwPj7t3vAwMA4gJGEwuo7429yxnhdDAwMjF5wTH6VbB0DAwNjbcAdb7f6FAMDA6NXxOZnXL2ythqmMTAwzmHkS37/80f6GxgYGI9iXMVRDbi94FjeFQYGxtaMPMDNl51RIdraDwYGxjmMpKSswlZdC4t2hYGBsSmjGi57jcZeMyBviGJgYJzD+ETTcX6eKNHEwMDYmpFPMU7aes3LVUEcAwPjBEaekOXJXNJOyJPRwnEeBgbGpoz5wJqXnataAm8P3TAwMLZjzG9rbWnabCFgYGAcwKheg+g1LJOj/94eMDAw9mbk6WC1WM0P4HqXLV65DwMDYwtGdYFqA6CaPiZXwcp9WgwMjIczqqle9XLGzPWvwp8EBgbGpowkqPUajUn7s7f6PzNgYGBszcjTuF6bM8dXN31z5QIDA2M7RjU5G7+Zz9ZLOt/OgIGBcQBjVYJYDcG9ZBEDA+NMRrXduKohWm1SRrktBgbGRoyrOHq/qh7VfaT+xsDAeCyjereqmhrOF7fJMRwGBsYJjDzIzqd6SSDuXUHDwMA4gVENfNV0cNU/wE2ei4GBgREni8nTZMUCGAMDA2OacdOADJoKN29iYGAcwKg2A2YO2uYLaQwMjNMY82dZ1abjTKE71dTEwMB4HuMHu2xqmN5vIbMAAAAASUVORK5CYII=" alt="微信分享二维码">
 </div>
 
 
