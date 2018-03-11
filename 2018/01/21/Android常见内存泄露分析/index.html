@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>Android常见内存泄露分析 | 科长 | 会写一点代码</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Android,内存泄露,性能优化">
+    <meta name="description" content="如何找到项目中存在的内存泄露的地方？确定是否存在内存泄露Android Monitors的内存分析最直观的看内存增长情况，知道该动作是否发生内存泄露。动作发生之前：GC完后内存1.4M; 动作发生之后：GC完后内存1.6M 使用MAT内存分析工具MAT分析heap的总内存占用大小来初步判断是否存在泄露Heap视图中有一个Type叫做data object，即数据对象，也就是我们的程序中大量存在的类">
+<meta name="keywords" content="Android,内存泄露,性能优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android常见内存泄露分析">
+<meta property="og:url" content="https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/index.html">
+<meta property="og:site_name" content="科长">
+<meta property="og:description" content="如何找到项目中存在的内存泄露的地方？确定是否存在内存泄露Android Monitors的内存分析最直观的看内存增长情况，知道该动作是否发生内存泄露。动作发生之前：GC完后内存1.4M; 动作发生之后：GC完后内存1.6M 使用MAT内存分析工具MAT分析heap的总内存占用大小来初步判断是否存在泄露Heap视图中有一个Type叫做data object，即数据对象，也就是我们的程序中大量存在的类">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-03-09T15:31:37.308Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android常见内存泄露分析">
+<meta name="twitter:description" content="如何找到项目中存在的内存泄露的地方？确定是否存在内存泄露Android Monitors的内存分析最直观的看内存增长情况，知道该动作是否发生内存泄露。动作发生之前：GC完后内存1.4M; 动作发生之后：GC完后内存1.6M 使用MAT内存分析工具MAT分析heap的总内存占用大小来初步判断是否存在泄露Heap视图中有一个Type叫做data object，即数据对象，也就是我们的程序中大量存在的类">
+    
+        <link rel="alternate" type="application/atom+xml" title="科长" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">柯彰</h5>
+          <a href="mailto:gzuzqd@gmail.com" title="gzuzqd@gmail.com" class="mail">gzuzqd@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Android常见内存泄露分析</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Android常见内存泄露分析</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-01-21T15:15:41.000Z" itemprop="datePublished" class="page-time">
+  2018-01-21
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Android/">Android</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#如何找到项目中存在的内存泄露的地方？"><span class="post-toc-number">1.</span> <span class="post-toc-text">如何找到项目中存在的内存泄露的地方？</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#确定是否存在内存泄露"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">确定是否存在内存泄露</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Android-Monitors的内存分析"><span class="post-toc-number">1.1.1.</span> <span class="post-toc-text">Android Monitors的内存分析</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用MAT内存分析工具"><span class="post-toc-number">1.1.2.</span> <span class="post-toc-text">使用MAT内存分析工具</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#先找怀疑对象-哪些对象属于泄露的"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">先找怀疑对象(哪些对象属于泄露的)</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MAT分析hprof来定位内存泄露的原因所在。-哪个对象持有了上面怀疑出来的发生泄露的对象"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">MAT分析hprof来定位内存泄露的原因所在。(哪个对象持有了上面怀疑出来的发生泄露的对象)</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#内存泄露经常出现的例子"><span class="post-toc-number">2.</span> <span class="post-toc-text">内存泄露经常出现的例子</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#静态变量引起的内存泄露"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">静态变量引起的内存泄露</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#非静态内部类引起内存泄露"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">非静态内部类引起内存泄露</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#不需要用的监听未移除会发生内存泄露"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">不需要用的监听未移除会发生内存泄露</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#资源未关闭引起的内存泄露情况"><span class="post-toc-number">2.4.</span> <span class="post-toc-text">资源未关闭引起的内存泄露情况</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#无限循环动画"><span class="post-toc-number">2.5.</span> <span class="post-toc-text">无限循环动画</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Android常见内存泄露分析"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Android常见内存泄露分析</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-01-21 23:15:41" datetime="2018-01-21T15:15:41.000Z"  itemprop="datePublished">2018-01-21</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Android/">Android</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="如何找到项目中存在的内存泄露的地方？"><a href="#如何找到项目中存在的内存泄露的地方？" class="headerlink" title="如何找到项目中存在的内存泄露的地方？"></a>如何找到项目中存在的内存泄露的地方？</h1><h2 id="确定是否存在内存泄露"><a href="#确定是否存在内存泄露" class="headerlink" title="确定是否存在内存泄露"></a>确定是否存在内存泄露</h2><h3 id="Android-Monitors的内存分析"><a href="#Android-Monitors的内存分析" class="headerlink" title="Android Monitors的内存分析"></a>Android Monitors的内存分析</h3><p>最直观的看内存增长情况，知道该动作是否发生内存泄露。<br>动作发生之前：GC完后内存1.4M; 动作发生之后：GC完后内存1.6M</p>
+<h3 id="使用MAT内存分析工具"><a href="#使用MAT内存分析工具" class="headerlink" title="使用MAT内存分析工具"></a>使用MAT内存分析工具</h3><p>MAT分析heap的总内存占用大小来初步判断是否存在泄露<br>Heap视图中有一个Type叫做data object，即数据对象，也就是我们的程序中大量存在的类类型的对象。<br>在data object一行中有一列是“Total Size”，其值就是当前进程中所有Java数据对象的内存总量，<br>一般情况下，这个值的大小决定了是否会有内存泄漏。<br>我们反复执行某一个操作并同时执行GC排除可以回收掉的内存，注意观察data object的Total Size值，<br>正常情况下Total Size值都会稳定在一个有限的范围内，也就是说由于程序中的的代码良好，没有造成对象不被垃圾回收的情况。<br>反之如果代码中存在没有释放对象引用的情况，随着操作次数的增多Total Size的值会越来越大。<br>那么这里就已经初步判断这个操作导致了内存泄露的情况。</p>
+<h2 id="先找怀疑对象-哪些对象属于泄露的"><a href="#先找怀疑对象-哪些对象属于泄露的" class="headerlink" title="先找怀疑对象(哪些对象属于泄露的)"></a>先找怀疑对象(哪些对象属于泄露的)</h2><p>MAT对比操作前后的hprof来定位内存泄露是泄露了什么数据对象。（这样做可以排除一些对象，不用后面去查看所有被引用的对象是否是嫌疑）<br>快速定位到操作前后所持有的对象哪些是增加了(GC后还是比之前多出来的对象就可能是泄露对象嫌疑犯)<br>技巧：Histogram中还可以对对象进行Group，比如选择Group By Package更方便查看自己Package中的对象信息。</p>
+<h2 id="MAT分析hprof来定位内存泄露的原因所在。-哪个对象持有了上面怀疑出来的发生泄露的对象"><a href="#MAT分析hprof来定位内存泄露的原因所在。-哪个对象持有了上面怀疑出来的发生泄露的对象" class="headerlink" title="MAT分析hprof来定位内存泄露的原因所在。(哪个对象持有了上面怀疑出来的发生泄露的对象)"></a>MAT分析hprof来定位内存泄露的原因所在。(哪个对象持有了上面怀疑出来的发生泄露的对象)</h2><ul>
+<li>Dump出内存泄露“当时”的内存镜像hprof，分析怀疑泄露的类；</li>
+<li>把上面2得出的这些嫌疑犯一个一个排查个遍。步骤：</li>
+<li>进入Histogram，过滤出某一个嫌疑对象类</li>
+<li>然后分析持有此类对象引用的外部对象（在该类上面点击右键List Objects—&gt;with incoming references）</li>
+<li>再过滤掉一些弱引用、软引用、虚引用，因为它们迟早可以被GC干掉不属于内存泄露<br>(在类上面点击右键Merge Shortest Paths to GC Roots—&gt;exclude all phantom/weak/soft etc.references)</li>
+<li>逐个分析每个对象的GC路径是否正常<br>此时就要进入代码分析此时这个对象的引用持有是否合理，这就要考经验和体力了！<br>（比如上课的例子中：旋转屏幕后MainActivity有两个，肯定MainActivity发生泄露了，<br>那谁导致他泄露的呢？原来是我们的CommonUtils类持有了旋转之前的那个MainActivity他，<br>那是否合理？结合逻辑判断当然不合理，由此找到内存泄露根源是CommonUtils类持有了该MainActivity实例造成的。<br>怎么解决？罪魁祸首找到了，怎么解决应该不难了，不同情况解决办法不一样，要靠你的智慧了。）</li>
+</ul>
+<p>context.getapplictioncontext()可以吗？<br>可以！！只要让CommonUtils类不直接只有MainActivity的实例就可以了。</p>
+<p>一般我是最笨的方法解决<br>new出来对象，用完后把它 = null;这样算不算优化<br>假如：方法里面定义的对象，要去管吗？一般不需要管。<br>    自己=null，要自己去控制所有对象的生命周期 判断各种空指针，有点麻烦。<br>    但是在很多时候去想到主动将对象置为null是很好的习惯。</p>
+<p>判断一个应用里面内存泄露避免得很好，怎么看？<br>当app退出的时候，这个进程里面所有的对象应该就都被回收了，尤其是很容易被泄露的（View，Activity）是否还内存当中。<br>可以让app退出以后，查看系统该进程里面的所有的View、Activity对象是否为0.<br>工具：使用AndroidStudio–AndroidMonitor–System Information–Memory Usage查看Objects里面的views和Activity的数量是否为0.<br>命令行模式：</p>
+<h1 id="内存泄露经常出现的例子"><a href="#内存泄露经常出现的例子" class="headerlink" title="内存泄露经常出现的例子"></a>内存泄露经常出现的例子</h1><p>内存泄露(Memory Leak)：<br>    进程中某些对象已经没有使用价值了，但是他们却还可以直接或者间接地被引用到GC Root导致无法回收。<br>    当内存泄露过多的时候，再加上应用本身占用的内存，日积月累最终就会导致内存溢出OOM.<br>内存溢出（OOM）：<br>    当应用占用的heap资源超过了Dalvik虚拟机分配的内存就会内存溢出。比如：加载大图片。</p>
+<h2 id="静态变量引起的内存泄露"><a href="#静态变量引起的内存泄露" class="headerlink" title="静态变量引起的内存泄露"></a>静态变量引起的内存泄露</h2><p>当调用getInstance时，如果传入的context是Activity的context。只要这个单利没有被释放，那么这个<br>Activity也不会被释放一直到进程退出才会释放。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CommUtil</span> </span>&#123;</span><br><span class="line">	    <span class="keyword">private</span> <span class="keyword">static</span> CommUtil instance;</span><br><span class="line">	    <span class="keyword">private</span> Context context;</span><br><span class="line">	    <span class="function"><span class="keyword">private</span> <span class="title">CommUtil</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.context = context;</span><br><span class="line">	    &#125;</span><br><span class="line"></span><br><span class="line">	    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> CommUtil <span class="title">getInstance</span><span class="params">(Context mcontext)</span></span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(instance == <span class="keyword">null</span>)&#123;</span><br><span class="line">		    instance = <span class="keyword">new</span> CommUtil(mcontext);</span><br><span class="line">		&#125;</span><br><span class="line">	<span class="comment">//        else&#123;</span></span><br><span class="line">	<span class="comment">//            instance.setContext(mcontext);</span></span><br><span class="line">	<span class="comment">//        &#125;</span></span><br><span class="line">		<span class="keyword">return</span> instance;</span><br><span class="line">	    &#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="非静态内部类引起内存泄露"><a href="#非静态内部类引起内存泄露" class="headerlink" title="非静态内部类引起内存泄露"></a>非静态内部类引起内存泄露</h2><p>(包括匿名内部类)<br>    错误的示范：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadData</span><span class="params">()</span></span>&#123;<span class="comment">//隐式持有MainActivity实例。MainActivity.this.a</span></span><br><span class="line">		<span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">		    <span class="meta">@Override</span></span><br><span class="line">		    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span><br><span class="line">			    <span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">//int b=a;</span></span><br><span class="line">				Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">			    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			    &#125;</span><br><span class="line">			&#125;</span><br><span class="line">		    &#125;</span><br><span class="line">		&#125;).start();</span><br><span class="line">	    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>解决方案：<br>将非静态内部类修改为静态内部类。<br>（静态内部类不会隐式持有外部类）</p>
+<p>当使用软引用或者弱引用的时候，MainActivity难道很容易或者可以被GC回收吗？》<br>GC回收的机制是什么？当MainActivity不被任何的对象引用。<br>虽然Handler里面用的是软引用/弱引用，但是并不意味着不存在其他的对象引用该MainActivity。<br>我连MainActivity都被回收了，那他里面的Handler还玩个屁。</p>
+<h2 id="不需要用的监听未移除会发生内存泄露"><a href="#不需要用的监听未移除会发生内存泄露" class="headerlink" title="不需要用的监听未移除会发生内存泄露"></a>不需要用的监听未移除会发生内存泄露</h2><p>例1：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">tv.setOnClickListener();<span class="comment">//监听执行完回收对象</span></span><br><span class="line"><span class="comment">//add监听，放到集合里面</span></span><br><span class="line">tv.getViewTreeObserver().addOnWindowFocusChangeListener(<span class="keyword">new</span> ViewTreeObserver.OnWindowFocusChangeListener() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onWindowFocusChanged</span><span class="params">(<span class="keyword">boolean</span> b)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//监听view的加载，view加载出来的时候，计算他的宽高等。</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//计算完后，一定要移除这个监听</span></span><br><span class="line">        tv.getViewTreeObserver().removeOnWindowFocusChangeListener(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>例2：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SensorManager sensorManager = getSystemService(SENSOR_SERVICE);</span><br><span class="line">   Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ALL);</span><br><span class="line">   sensorManager.registerListener(<span class="keyword">this</span>,sensor,SensorManager.SENSOR_DELAY_FASTEST);</span><br><span class="line">   <span class="comment">//不需要用的时候记得移除监听</span></span><br><span class="line">   sensorManager.unregisterListener(listener);</span><br></pre></td></tr></table></figure></p>
+<h2 id="资源未关闭引起的内存泄露情况"><a href="#资源未关闭引起的内存泄露情况" class="headerlink" title="资源未关闭引起的内存泄露情况"></a>资源未关闭引起的内存泄露情况</h2><p>比如：BroadCastReceiver、Cursor、Bitmap、IO流、自定义属性attribute<br>attr.recycle()回收。<br>当不需要使用的时候，要记得及时释放资源。否则就会内存泄露。</p>
+<h2 id="无限循环动画"><a href="#无限循环动画" class="headerlink" title="无限循环动画"></a>无限循环动画</h2><p>没有在onDestroy中停止动画，否则Activity就会变成泄露对象。<br>比如：轮播图效果。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-03-09T15:31:37.308Z" itemprop="dateUpdated">2018-03-09 23:31:37</time>
+</span><br>
+
+
+        
+        如需转发请与我联系，获得允许之后请注明出处：<a href="/2018/01/21/Android常见内存泄露分析/" target="_blank" rel="external">https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://cohleke.github.io">
+            <img src="/img/avatar.jpg" alt="柯彰">
+            柯彰
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/内存泄露/">内存泄露</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/性能优化/">性能优化</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/&title=《Android常见内存泄露分析》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/&title=《Android常见内存泄露分析》 — 科长&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Android常见内存泄露分析》 — 科长&url=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/&via=https://cohleke.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/02/01/Android Activity启动过程/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Android Activity启动过程</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/01/07/Android Handler消息机制/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Android Handler消息机制</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>柯彰 &copy; 2018</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/&title=《Android常见内存泄露分析》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/&title=《Android常见内存泄露分析》 — 科长&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Android常见内存泄露分析》 — 科长&url=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/&via=https://cohleke.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2018/01/21/Android常见内存泄露分析/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACt0lEQVR42u3a0W7CMAwF0P7/TzNpbxNqe20nZZtOnhAMyMmkOFznOOLx+h7J86+3kb/r7PH1py0YeHh4eK2pn433v8mfOfuWfD7XS3A9Zzw8PLzdvOvt+xpztq1X9+38k/OSg4eHh/dZXrVIrCoqeHh4eP+D11uOfFGS4oGHh4f3WV4SRiRxbRIQTOKPjVkLHh4eXsyrNsB+w+ON/T08PDy8QVe9VySSJtb8UB7NFg8PD28Dr9fKqsaykytWeTEo/GLAw8PD28DLD7LVC1K9y1i9ZcLDw8Pbzett/fkCTQLf3lUwPDw8vH288iE1CFh7yPzawYLAFw8PD6/F68Wsva/sbe75Eh/Jy3h4eHhj3qoCkHzlJHTIi8RNAwwPDw9vKS8vGL2G2drYIi91eHh4eM/zqsfZ6hF5fmi++ffg4eHhLeVNAtPeVarqITspGJEbDw8Pbymv13zKSXlw0Fvim8KAh4eHt5TXm2517500vXohMh4eHt5uXnUSzRZ+HChMLhzcZC14eHh4Y16yHfcOwb2Qd76sP96Lh4eHt4GXvFD9wd9rp81nchOd4OHh4S3i5Y38+WG6VxLyQPmm7uHh4eE9yKtGqzm+Gi6UrzXg4eHhbeBVt93q5HrhRbXpFTXA8PDw8DbwqsHoPLyoBsfNQzkeHh7eUl6+cfeih+q1gDyeWBBG4OHh4Y151Y04jw+i1v7gwB01wPDw8PAW8SaRa6+pP7o41QqL8fDw8NbyXsVR3o5by5SExVG5wsPDw9vAy8cksOiFC/ODNR4eHt4+Xq/VVD1MJ0FDwqse0PHw8PD28apNrN4S9I7IR3Gc3ozAw8PDe5xXPUbn5aTaSEs+Bw8PD++v8KqPe9lJ4Xk8PDy8bbxq06uwNRcb/70W1+kc8PDw8DbwnplE7yLC9UQngQUeHh5ei/cFRbX5PomWcXYAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '你即将失去你的宝宝！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '没有什么我不能原谅的!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>Android Binder进程间通讯 | 科长 | 会写一点代码</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Android,Binder">
+    <meta name="description" content="Android-Binder进程间通讯概述最近在学习 Binder 机制，在网上查阅了大量的资料，也看了老罗的 Binder 系列的博客和 Innost 的深入理解 Binder 系列的博客，都是从底层开始讲的，全是 C 代码，虽然之前学过 C 和 C++，然而各种函数之间花式跳转，看的我都怀疑人生。 毫不夸张的讲每看一遍都是新的内容，跟没看过一样。 后来又看到了 Gityuan 的博客看到了一些">
+<meta name="keywords" content="Android,Binder">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Binder进程间通讯">
+<meta property="og:url" content="https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/index.html">
+<meta property="og:site_name" content="科长">
+<meta property="og:description" content="Android-Binder进程间通讯概述最近在学习 Binder 机制，在网上查阅了大量的资料，也看了老罗的 Binder 系列的博客和 Innost 的深入理解 Binder 系列的博客，都是从底层开始讲的，全是 C 代码，虽然之前学过 C 和 C++，然而各种函数之间花式跳转，看的我都怀疑人生。 毫不夸张的讲每看一遍都是新的内容，跟没看过一样。 后来又看到了 Gityuan 的博客看到了一些">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/01.jpg">
+<meta property="og:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/08.jpg">
+<meta property="og:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/02.jpg">
+<meta property="og:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/03.jpg">
+<meta property="og:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/04.jpg">
+<meta property="og:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/05.jpg">
+<meta property="og:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/06.jpg">
+<meta property="og:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/07.jpg">
+<meta property="og:updated_time" content="2018-03-11T08:51:41.181Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Binder进程间通讯">
+<meta name="twitter:description" content="Android-Binder进程间通讯概述最近在学习 Binder 机制，在网上查阅了大量的资料，也看了老罗的 Binder 系列的博客和 Innost 的深入理解 Binder 系列的博客，都是从底层开始讲的，全是 C 代码，虽然之前学过 C 和 C++，然而各种函数之间花式跳转，看的我都怀疑人生。 毫不夸张的讲每看一遍都是新的内容，跟没看过一样。 后来又看到了 Gityuan 的博客看到了一些">
+<meta name="twitter:image" content="https://cohleke.github.io/2017/12/30/Android%20Binder进程间通讯/01.jpg">
+    
+        <link rel="alternate" type="application/atom+xml" title="科长" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">柯彰</h5>
+          <a href="mailto:gzuzqd@gmail.com" title="gzuzqd@gmail.com" class="mail">gzuzqd@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Android Binder进程间通讯</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Android Binder进程间通讯</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-12-30T08:41:27.000Z" itemprop="datePublished" class="page-time">
+  2017-12-30
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Android/">Android</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Android-Binder进程间通讯"><span class="post-toc-number">1.</span> <span class="post-toc-text">Android-Binder进程间通讯</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#什么是-Binder？"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">什么是 Binder？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-Binder-架构"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">1. Binder 架构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-Binder-机制"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">2. Binder 机制</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-Binder-驱动"><span class="post-toc-number">1.5.</span> <span class="post-toc-text">3. Binder 驱动</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#用户空间-内核空间"><span class="post-toc-number">1.5.1.</span> <span class="post-toc-text">用户空间/内核空间</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#系统调用-内核态-用户态"><span class="post-toc-number">1.5.2.</span> <span class="post-toc-text">系统调用/内核态/用户态</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#内核模块-驱动"><span class="post-toc-number">1.5.3.</span> <span class="post-toc-text">内核模块/驱动</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#4-Binder-进程与线程"><span class="post-toc-number">1.6.</span> <span class="post-toc-text">4. Binder 进程与线程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#5-ServiceManager-启动"><span class="post-toc-number">1.7.</span> <span class="post-toc-text">5. ServiceManager 启动</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#6-ServiceManager-注册服务"><span class="post-toc-number">1.8.</span> <span class="post-toc-text">6. ServiceManager 注册服务</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#7-ServiceManager-获取服务"><span class="post-toc-number">1.9.</span> <span class="post-toc-text">7. ServiceManager 获取服务</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#8-进行一次完整通讯"><span class="post-toc-number">1.10.</span> <span class="post-toc-text">8. 进行一次完整通讯</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">1.11.</span> <span class="post-toc-text">总结</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-number">1.12.</span> <span class="post-toc-text">参考资料</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Android Binder进程间通讯"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Android Binder进程间通讯</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-12-30 16:41:27" datetime="2017-12-30T08:41:27.000Z"  itemprop="datePublished">2017-12-30</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Android/">Android</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="Android-Binder进程间通讯"><a href="#Android-Binder进程间通讯" class="headerlink" title="Android-Binder进程间通讯"></a>Android-Binder进程间通讯</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>最近在学习 Binder 机制，在网上查阅了大量的资料，也看了老罗的 Binder 系列的博客和 Innost 的深入理解 Binder 系列的博客，都是从底层开始讲的，全是 C 代码，虽然之前学过 C 和 C++，然而各种函数之间花式跳转，看的我都怀疑人生。 毫不夸张的讲每看一遍都是新的内容，跟没看过一样。 后来又看到了 Gityuan 的博客看到了一些图解仿佛发现了新大陆。 </p>
+<p>下面就以图解的方式介绍下 Binder 机制，相信你看这篇文章，一定有所收获。</p>
+<h2 id="什么是-Binder？"><a href="#什么是-Binder？" class="headerlink" title="什么是 Binder？"></a>什么是 Binder？</h2><p>Binder 是 Android 系统中进程间通讯（IPC）的一种方式，也是 Android 系统中最重要的特性之一。 Android 中的四大组件 Activity，Service，Broadcast，ContentProvider，不同的 App 等都运行在不同的进程中，它是这些进程间通讯的桥梁。正如其名“粘合剂”一样，它把系统中各个组件粘合到了一起，是各个组件的桥梁。</p>
+<p>理解 Binder 对于理解整个 Android 系统有着非常重要的作用，如果对 Binder 不了解，就很难对 Android 系统机制有更深入的理解。</p>
+<h2 id="1-Binder-架构"><a href="#1-Binder-架构" class="headerlink" title="1. Binder 架构"></a>1. Binder 架构</h2><img src="/2017/12/30/Android%20Binder进程间通讯/01.jpg" title="Binder 架构">
+<ul>
+<li>Binder 通信采用 C/S 架构，从组件视角来说，包含 Client、 Server、 ServiceManager 以及 Binder 驱动，其中 ServiceManager 用于管理系统中的各种服务。</li>
+<li>Binder 在 framework 层进行了封装，通过 JNI 技术调用 Native（C/C++）层的 Binder 架构。 </li>
+<li>Binder 在 Native 层以 ioctl 的方式与 Binder 驱动通讯。</li>
+</ul>
+<h2 id="2-Binder-机制"><a href="#2-Binder-机制" class="headerlink" title="2. Binder 机制"></a>2. Binder 机制</h2><img src="/2017/12/30/Android%20Binder进程间通讯/08.jpg" title="Binder 机制">
+<ul>
+<li><p>首先需要注册服务端，只有注册了服务端，客户端才有通讯的目标，服务端通过 ServiceManager 注册服务，注册的过程就是向 Binder 驱动的全局链表 binder_procs 中插入服务端的信息（binder_proc 结构体，每个 binder_proc 结构体中都有 todo 任务队列），然后向 ServiceManager 的 svcinfo 列表中缓存一下注册的服务。</p>
+</li>
+<li><p>有了服务端，客户端就可以跟服务端通讯了，通讯之前需要先获取到服务，拿到服务的代理，也可以理解为引用。比如下面的代码：</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取WindowManager服务引用</span></span><br><span class="line">WindowManager wm = (WindowManager)getSystemService(getApplication().WINDOW_SERVICE);</span><br></pre></td></tr></table></figure>
+<p>  获取服务端的方式就是通过 ServiceManager 向 svcinfo 列表中查询一下返回服务端的代理，svcinfo 列表就是所有已注册服务的通讯录，保存了所有注册的服务信息。</p>
+</li>
+<li><p>有了服务端的引用我们就可以向服务端发送请求了，通过 BinderProxy 将我们的请求参数发送给 ServiceManager，通过共享内存的方式使用内核方法 copy_from_user() 将我们的参数先拷贝到内核空间，这时我们的客户端进入等待状态，然后 Binder 驱动向服务端的 todo 队列里面插入一条事务，执行完之后把执行结果通过 copy_to_user() 将内核的结果拷贝到用户空间（这里只是执行了拷贝命令，并没有拷贝数据，binder只进行一次拷贝），唤醒等待的客户端并把结果响应回来，这样就完成了一次通讯。</p>
+</li>
+</ul>
+<p>怎么样是不是很简单，以上就是 Binder 机制的主要通讯方式，下面我们来看看具体实现。</p>
+<h2 id="3-Binder-驱动"><a href="#3-Binder-驱动" class="headerlink" title="3. Binder 驱动"></a>3. Binder 驱动</h2><p>我们先来了解下用户空间与内核空间是怎么交互的。</p>
+<img src="/2017/12/30/Android%20Binder进程间通讯/02.jpg" title="用户空间与内核空间">
+<p>先了解一些概念</p>
+<h3 id="用户空间-内核空间"><a href="#用户空间-内核空间" class="headerlink" title="用户空间/内核空间"></a>用户空间/内核空间</h3><p>详细解释可以参考 <a href="http://www.linfo.org/kernel_space.html" target="_blank" rel="noopener">Kernel Space Definition</a>； 简单理解如下：</p>
+<p>Kernel space 是 Linux 内核的运行空间，User space 是用户程序的运行空间。 为了安全，它们是隔离的，即使用户的程序崩溃了，内核也不受影响。</p>
+<p>Kernel space 可以执行任意命令，调用系统的一切资源； User space 只能执行简单的运算，不能直接调用系统资源，必须通过系统接口（又称 system call），才能向内核发出指令。</p>
+<h3 id="系统调用-内核态-用户态"><a href="#系统调用-内核态-用户态" class="headerlink" title="系统调用/内核态/用户态"></a>系统调用/内核态/用户态</h3><p>虽然从逻辑上抽离出用户空间和内核空间；但是不可避免的的是，总有那么一些用户空间需要访问内核的资源；比如应用程序访问文件，网络是很常见的事情，怎么办呢？</p>
+<blockquote>
+<p>Kernel space can be accessed by user processes only through the use of system calls.</p>
+</blockquote>
+<p>用户空间访问内核空间的唯一方式就是系统调用；通过这个统一入口接口，所有的资源访问都是在内核的控制下执行，以免导致对用户程序对系统资源的越权访问，从而保障了系统的安全和稳定。用户软件良莠不齐，要是它们乱搞把系统玩坏了怎么办？因此对于某些特权操作必须交给安全可靠的内核来执行。</p>
+<p>当一个任务（进程）执行系统调用而陷入内核代码中执行时，我们就称进程处于内核运行态（或简称为内核态）此时处理器处于特权级最高的（0级）内核代码中执行。当进程在执行用户自己的代码时，则称其处于用户运行态（用户态）。即此时处理器在特权级最低的（3级）用户代码中运行。处理器在特权等级高的时候才能执行那些特权CPU指令。</p>
+<h3 id="内核模块-驱动"><a href="#内核模块-驱动" class="headerlink" title="内核模块/驱动"></a>内核模块/驱动</h3><p>通过系统调用，用户空间可以访问内核空间，那么如果一个用户空间想与另外一个用户空间进行通信怎么办呢？很自然想到的是让操作系统内核添加支持；传统的 Linux 通信机制，比如 Socket，管道等都是内核支持的；但是 Binder 并不是 Linux 内核的一部分，它是怎么做到访问内核空间的呢？ Linux 的动态可加载内核模块（Loadable Kernel Module，LKM）机制解决了这个问题；模块是具有独立功能的程序，它可以被单独编译，但不能独立运行。它在运行时被链接到内核作为内核的一部分在内核空间运行。这样，Android系统可以通过添加一个内核模块运行在内核空间，用户进程之间的通过这个模块作为桥梁，就可以完成通信了。</p>
+<p>在 Android 系统中，这个运行在内核空间的，负责各个用户进程通过 Binder 通信的内核模块叫做 Binder 驱动;</p>
+<blockquote>
+<p>驱动程序一般指的是设备驱动程序（Device Driver），是一种可以使计算机和设备通信的特殊程序。相当于硬件的接口，操作系统只有通过这个接口，才能控制硬件设备的工作；</p>
+</blockquote>
+<p>驱动就是操作硬件的接口，为了支持 Binder 通信过程，Binder 使用了一种“硬件”，因此这个模块被称之为驱动。</p>
+<p>熟悉了上面这些概念，我们再来看下上面的图，用户空间中 binder_open(), binder_mmap(), binder_ioctl() 这些方法通过 system call 来调用内核空间 Binder 驱动中的方法。内核空间与用户空间共享内存通过 copy_from_user(), copy_to_user() 内核方法来完成用户空间与内核空间内存的数据传输。 Binder驱动中有一个全局的 binder_procs 链表保存了服务端的进程信息。</p>
+<h2 id="4-Binder-进程与线程"><a href="#4-Binder-进程与线程" class="headerlink" title="4. Binder 进程与线程"></a>4. Binder 进程与线程</h2><img src="/2017/12/30/Android%20Binder进程间通讯/03.jpg" title="进程与线程">
+<p>对于底层Binder驱动，通过 binder_procs 链表记录所有创建的 binder_proc 结构体，binder 驱动层的每一个 binder_proc 结构体都与用户空间的一个用于 binder 通信的进程一一对应，且每个进程有且只有一个 ProcessState 对象，这是通过单例模式来保证的。在每个进程中可以有很多个线程，每个线程对应一个 IPCThreadState 对象，IPCThreadState 对象也是单例模式，即一个线程对应一个 IPCThreadState 对象，在 Binder 驱动层也有与之相对应的结构，那就是 Binder_thread 结构体。在 binder_proc 结构体中通过成员变量 rb_root threads，来记录当前进程内所有的 binder_thread。</p>
+<p>Binder 线程池：每个 Server 进程在启动时创建一个 binder 线程池，并向其中注册一个 Binder 线程；之后 Server 进程也可以向 binder 线程池注册新的线程，或者 Binder 驱动在探测到没有空闲 binder 线程时主动向 Server 进程注册新的的 binder 线程。对于一个 Server 进程有一个最大 Binder 线程数限制，默认为16个 binder 线程，例如 Android 的 system_server 进程就存在16个线程。对于所有 Client 端进程的 binder 请求都是交由 Server 端进程的 binder 线程来处理的。</p>
+<h2 id="5-ServiceManager-启动"><a href="#5-ServiceManager-启动" class="headerlink" title="5. ServiceManager 启动"></a>5. ServiceManager 启动</h2><p>了解了 Binder 驱动，怎么与 Binder 驱动进行通讯呢？那就是通过 ServiceManager，好多文章称 ServiceManager 是 Binder 驱动的守护进程，大管家，其实 ServiceManager 的作用很简单就是提供了查询服务和注册服务的功能。下面我们来看一下 ServiceManager 启动的过程。</p>
+<img src="/2017/12/30/Android%20Binder进程间通讯/04.jpg" title="Binder 驱动">
+<ul>
+<li><p>ServiceManager 分为 framework 层和 native 层，framework 层只是对 native 层进行了封装方便调用，图上展示的是 native 层的 ServiceManager 启动过程。</p>
+</li>
+<li><p>ServiceManager 的启动是系统在开机时，init 进程解析 init.rc 文件调用 service_manager.c 中的 main() 方法入口启动的。 native 层有一个 binder.c 封装了一些与 Binder 驱动交互的方法。</p>
+</li>
+<li><p>ServiceManager 的启动分为三步，首先打开驱动创建全局链表 binder_procs，然后将自己当前进程信息保存到 binder_procs 链表，最后开启 loop 不断的处理共享内存中的数据，并处理 BR_xxx 命令（ioctl 的命令，BR 可以理解为 binder reply 驱动处理完的响应）。</p>
+</li>
+</ul>
+<h2 id="6-ServiceManager-注册服务"><a href="#6-ServiceManager-注册服务" class="headerlink" title="6. ServiceManager 注册服务"></a>6. ServiceManager 注册服务</h2><img src="/2017/12/30/Android%20Binder进程间通讯/05.jpg" title="注册服务">
+<ul>
+<li><p>注册 MediaPlayerService 服务端，我们通过 ServiceManager 的 addService() 方法来注册服务。</p>
+</li>
+<li><p>首先 ServiceManager 向 Binder 驱动发送 BC_TRANSACTION 命令（ioctl 的命令，BC 可以理解为 binder client 客户端发过来的请求命令）携带 ADD_SERVICE_TRANSACTION 命令，同时注册服务的线程进入等待状态 waitForResponse()。 Binder 驱动收到请求命令向 ServiceManager 的 todo 队列里面添加一条注册服务的事务。事务的任务就是创建服务端进程 binder_node 信息并插入到 binder_procs 链表中。</p>
+</li>
+<li><p>事务处理完之后发送 BR_TRANSACTION 命令，ServiceManager 收到命令后向 svcinfo 列表中添加已经注册的服务。最后发送 BR_REPLY 命令唤醒等待的线程，通知注册成功。</p>
+</li>
+</ul>
+<h2 id="7-ServiceManager-获取服务"><a href="#7-ServiceManager-获取服务" class="headerlink" title="7. ServiceManager 获取服务"></a>7. ServiceManager 获取服务</h2><img src="/2017/12/30/Android%20Binder进程间通讯/06.jpg" title="获取服务">
+<ul>
+<li><p>获取服务的过程与注册类似，相反的过程。通过 ServiceManager 的 getService() 方法来注册服务。</p>
+</li>
+<li><p>首先 ServiceManager 向 Binder 驱动发送 BC_TRANSACTION 命令携带 CHECK_SERVICE_TRANSACTION 命令，同时获取服务的线程进入等待状态 waitForResponse()。</p>
+</li>
+<li><p>Binder 驱动收到请求命令向 ServiceManager 的发送 BC_TRANSACTION 查询已注册的服务，查询到直接响应 BR_REPLY 唤醒等待的线程。若查询不到将与 binder_procs 链表中的服务进行一次通讯再响应。</p>
+</li>
+</ul>
+<h2 id="8-进行一次完整通讯"><a href="#8-进行一次完整通讯" class="headerlink" title="8. 进行一次完整通讯"></a>8. 进行一次完整通讯</h2><img src="/2017/12/30/Android%20Binder进程间通讯/07.jpg" title="完整通讯">
+<ul>
+<li><p>我们在使用 Binder 时基本都是调用 framework 层封装好的方法，AIDL 就是 framework 层提供的傻瓜式是使用方式。假设服务已经注册完，我们来看看客户端怎么执行服务端的方法。</p>
+</li>
+<li><p>首先我们通过 ServiceManager 获取到服务端的 BinderProxy 代理对象，通过调用 BinderProxy 将参数，方法标识（例如：TRANSACTION_test，AIDL中自动生成）传给  ServiceManager，同时客户端线程进入等待状态。</p>
+</li>
+<li><p>ServiceManager 将用户空间的参数等请求数据复制到内核空间，并向服务端插入一条执行执行方法的事务。事务执行完通知 ServiceManager 将执行结果从内核空间复制到用户空间，并唤醒等待的线程，响应结果，通讯结束。</p>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>好了，这里只是从实现逻辑上简单介绍了下 Binder 机制的工作原理，想要深入理解 Binder 机制，还得自己下功夫，看源码，尽管这个过程很痛苦。一遍看不懂就再来一遍，说实话本人理解能力比较差，跟着博客思路看了不下十遍。 努力总会有收获，好好欣赏 native 层各方法之间花式跳转的魅力吧。最后你将发现新世界的大门在向你敞开。</p>
+<p>网上资料很多，个人觉得比较好的如下：</p>
+<ol>
+<li><a href="http://blog.csdn.net/universus/article/details/6211589" target="_blank" rel="noopener">Bander设计与实现</a></li>
+<li>老罗的 <a href="http://blog.csdn.net/luoshengyang/article/details/6618363" target="_blank" rel="noopener">Android进程间通信（IPC）机制Binder简要介绍和学习计划</a> 系列</li>
+<li>Innost的 <a href="http://blog.csdn.net/innost/article/details/47208049" target="_blank" rel="noopener">深入理解Binder</a> 系列</li>
+<li>Gityuan的 <a href="http://gityuan.com/2015/10/31/binder-prepare" target="_blank" rel="noopener">Binder系列</a> (基于 Android 6.0)</li>
+<li><a href="http://weishu.me/2016/01/12/binder-index-for-newer" target="_blank" rel="noopener">Binder学习指南</a></li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://gityuan.com/2015/10/31/binder-prepare" target="_blank" rel="noopener">Binder系列</a></li>
+<li><a href="http://weishu.me/2016/01/12/binder-index-for-newer" target="_blank" rel="noopener">Binder学习指南</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-03-11T08:51:41.181Z" itemprop="dateUpdated">2018-03-11 16:51:41</time>
+</span><br>
+
+
+        
+        如需转发请与我联系，获得允许之后请注明出处：<a href="/2017/12/30/Android Binder进程间通讯/" target="_blank" rel="external">https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://cohleke.github.io">
+            <img src="/img/avatar.jpg" alt="柯彰">
+            柯彰
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Binder/">Binder</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/&title=《Android Binder进程间通讯》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/&title=《Android Binder进程间通讯》 — 科长&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Android Binder进程间通讯》 — 科长&url=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/&via=https://cohleke.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/01/07/Android Handler消息机制/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Android Handler消息机制</h4>
+      </a>
+    </div>
+  
+
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>柯彰 &copy; 2018</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/&title=《Android Binder进程间通讯》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/&title=《Android Binder进程间通讯》 — 科长&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Android Binder进程间通讯》 — 科长&url=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/&via=https://cohleke.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2017/12/30/Android Binder进程间通讯/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACtElEQVR42u3awW7jMAwE0P7/T3evC3TjzJBSkQWeT0FrOHo+iMxQX1/x9f3j+vvvP+98fs7zM5+//evGhYeHh7de+itGe08Cewa8epXJevDw8PBu85JNPCkVCWZWfp7X8/LveHh4eB/D27S/s2YaDw8P73/n5cUgb76/gwsPDw/vc3jt4/ahQ9t2X89a8PDw8GJe3ih/zucr8z08PDy89VR9s+G25WEW8r5ZLR4eHt4FXr7hbqKBTRy8GaHh4eHh3eC1I6gW04azSUtdhM54eHh4F3ibLXgWy7ZLz4OJl2vGw8PDO8rLR1NJqUiWnmzusyDjzW8FPDw8vEO8tnXOG+LZwYK2TY/qHh4eHt4FXtIWb7by/BBAEhbXR6/w8PDwjvJm0eomSsgb9LxIvJns4eHh4R3lJS1p8gryctIOsdrihIeHh3ebt298Ny8oyUhmRQsPDw/v93kHBk5lu5wfoio+4+Hh4V3gzb6ypc6GZHn7XrwnPDw8vDWv/ZHfjsry4jEbnhWTPTw8PLxDvDZoyAPctszsD10VYzA8PDy8Na8l7Y8C5C8iLwN19cPDw8Nb8GbHCGZbf/45jzbaSAUPDw/vLC8ffd0oIbNXXzwHDw8P7wJvNgbbxA1JYWhHYisqHh4eXsxrf9634/xkce1YqygSeHh4eEd5+ca9OQSQj7LagwLRTA8PDw/vGm/29Xmbm7A3JeQfd+Lh4eFd4+WPa1vn4Ya+CEpWvTweHh7eI2+ziM2i28Bi+F88PDy8C7zN0KuNWfevqQ2O8fDw8O7xZo9uB2ZtTHxqIIeHh4d3j5dPjmb3z2LcWb6Ch4eH95m8PHTI299kJfWrx8PDw/sA3uae/LBC0lJHxQMPDw/vGq9tfJ8LwCaeaJ/25lvw8PDwLvBmP/jPFoAoVhhFFXh4eHhHeX8Axw0NAYxAo1cAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '你即将失去你的宝宝！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '没有什么我不能原谅的!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>
