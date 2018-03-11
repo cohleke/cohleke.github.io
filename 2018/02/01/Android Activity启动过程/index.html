@@ -19,9 +19,9 @@
     <meta name="theme-color" content="#3F51B5">
     
     
-    <meta name="keywords" content="Android,Activity">
+    <meta name="keywords" content="Activity,Android">
     <meta name="description" content="Android - Activity启动过程概述从点击桌面应用图标到应用显示的过程我们再熟悉不过了，下面我们来分析下这个过程都做了什么。 本文主要对以下问题分析：  ActivityThread 是什么，它是一个线程吗，如何被启动的？ ActivityClientRecord 与 ActivityRecord 是什么？ Context 是什么，ContextImpl，ContextWapper 是">
-<meta name="keywords" content="Android,Activity">
+<meta name="keywords" content="Activity,Android">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android Activity启动过程">
 <meta property="og:url" content="https://cohleke.github.io/2018/02/01/Android Activity启动过程/index.html">
@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://cohleke.github.io/2018/02/01/Android%20Activity启动过程/01.png">
 <meta property="og:image" content="https://cohleke.github.io/2018/02/01/Android%20Activity启动过程/02.png">
 <meta property="og:image" content="https://cohleke.github.io/2018/02/01/Android%20Activity启动过程/03.jpg">
-<meta property="og:updated_time" content="2018-03-11T09:03:43.320Z">
+<meta property="og:updated_time" content="2018-03-11T09:11:38.943Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android Activity启动过程">
 <meta name="twitter:description" content="Android - Activity启动过程概述从点击桌面应用图标到应用显示的过程我们再熟悉不过了，下面我们来分析下这个过程都做了什么。 本文主要对以下问题分析：  ActivityThread 是什么，它是一个线程吗，如何被启动的？ ActivityClientRecord 与 ActivityRecord 是什么？ Context 是什么，ContextImpl，ContextWapper 是">
@@ -230,7 +230,6 @@
 <p>这时 Application 就创建好了，这点很重要，很多资料里说 Application 是在performLaunchActivity() 里创建的，因为 performLaunchActivity() 也有mInstrumentation.newApplication 这个调用，newApplication() 函数中可看出会先判断是否以及创建了 Application，如果之前已经创建，就返回已创建的 Application 对象。</p>
 <h2 id="Activity-启动"><a href="#Activity-启动" class="headerlink" title="Activity 启动"></a>Activity 启动</h2><p>上面 fork 进程时会发送 SCHEDULE_LAUNCH_ACTIVITY_TRANSACTION 命令，在 app 进程中，收到 SCHEDULE_LAUNCH_ACTIVITY_TRANSACTION 命令后调用 ApplicationThread.scheduleLaunchActivity()。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">ApplicationThread.scheduleLaunchActivity()</span><br><span class="line"><span class="comment">//发送消息 H.LAUNCH_ACTIVITY。</span></span><br><span class="line"></span><br><span class="line">sendMessage(H.LAUNCH_ACTIVITY, r);</span><br><span class="line"></span><br><span class="line">ActivityThread.handleLaunchActivity()</span><br><span class="line"><span class="comment">//最终回调目标 Activity 的 onConfigurationChanged()，初始化 WindowManagerService。</span></span><br><span class="line"><span class="comment">//调用 ActivityThread.performLaunchActivity()</span></span><br><span class="line"></span><br><span class="line">ActivityThread.performLaunchActivity() &#123;</span><br><span class="line">    <span class="comment">//类似 Application 的创建过程，通过 classLoader 加载到 activity.</span></span><br><span class="line">    activity = mInstrumentation.newActivity(classLoader, </span><br><span class="line">               component.getClassName(), r.intent);</span><br><span class="line">    <span class="comment">//因为 Activity 有界面，所以其 Context 是 ContextThemeWrapper 类型，但实现类仍是ContextImpl.</span></span><br><span class="line">    Context appContext = createBaseContextForActivity(r, activity);</span><br><span class="line">    activity.attach(context,mInstrumentation,application,...);</span><br><span class="line">    <span class="comment">//与 Window 进行关联</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//attach 后调用 activity 的 onCreate()方法。</span></span><br><span class="line">    mInstrumentation.callActivityOnCreate(activity,...)</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//在ActivityThread.handleLaunchActivity里，接着调用</span></span><br><span class="line"></span><br><span class="line">Activity.performCreate() -&gt; onCreate()</span><br><span class="line"><span class="comment">//最终回调目标 Activity 的 onCreate()。</span></span><br><span class="line"></span><br><span class="line">Activity.setContentView()</span><br><span class="line"><span class="comment">//设置 layout 布局</span></span><br><span class="line"></span><br><span class="line">ActivityThread.performResumeActivity()</span><br><span class="line"><span class="comment">//最终回调目标 Activity 的 onResume()。</span></span><br></pre></td></tr></table></figure>
-<p>与 Window 进行关联，具体过程详见：<a href="https://github.com/jeanboydev/Android-ReadTheFuckingSourceCode/blob/master/android/Android-Activity与Window与View之间的关系.md" target="_blank" rel="noopener">Activity，Window，View 之间的关系</a></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Activity 的整体启动流程如图所示：</p>
 <img src="/2018/02/01/Android%20Activity启动过程/03.jpg" title="Activity 的整体启动流程">
 <ul>
@@ -279,7 +278,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2018-03-11T09:03:43.320Z" itemprop="dateUpdated">2018-03-11 17:03:43</time>
+    最后更新时间：<time datetime="2018-03-11T09:11:38.943Z" itemprop="dateUpdated">2018-03-11 17:11:38</time>
 </span><br>
 
 
