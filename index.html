@@ -147,6 +147,57 @@
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-Android-指纹相关"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2018-03-12 10:53:01" datetime="2018-03-12T02:53:01.000Z"  itemprop="datePublished">2018-03-12</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Android/">Android</a></li></ul>
+
+
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2018/03/12/Android-指纹相关/">Android 指纹适配</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        待填坑
+指纹识别适配指纹识别适配会有很多问题，这些问题可以从下面三种情况中看出:
+
+Google官方支持指纹识别的标准接口是在Android6.0开始的，如果各个厂商都升级到6.0并且硬件上都给予支持，那么我们按照标准的指纹识别接口使用就可以了。
+如果在android6.0发布以后，手机厂商来不及升级，但是工程师们参考了官方指纹识别的代码，把代码移植到他们的6.0版本以下的系统，或者参照Go...
+    
+
+        <a href="/2018/03/12/Android-指纹相关/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fingerprint/">Fingerprint</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/指纹/">指纹</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-WebChromeClient"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -165,7 +216,7 @@
 
   
     <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/03/02/WebChromeClient/">webviewclient WebChromeClient</a>
+      <a class="post-title-link" href="/2018/03/02/WebChromeClient/">webview填坑（hybrid / X5内核 等）</a>
     </h3>
   
 
@@ -175,10 +226,7 @@
     <div class="post-content" id="post-content" itemprop="postContent">
 
     
-        WebViewClientWebViewClient中的常用方法有
-onPageFinished(WebView view, String url)
-onPageStarted(WebView view, String url, Bitmap favicon)
-onReceivedSslError(WebView view, SslErrorHandler handler, SslError...
+        webview填坑地理位置原生处理覆盖WebChromeClient里的onGeolocationPermissionsShowPrompt方法请求原生定位123456@Overridepublic void onGeolocationPermissionsShowPrompt(String origin,                                           ...
     
 
         <a href="/2018/03/02/WebChromeClient/" class="post-more waves-effect waves-button">
