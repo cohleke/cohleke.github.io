@@ -63,11 +63,11 @@
       <category term="Android" scheme="https://cohleke.github.io/categories/Android/"/>
     
     
-      <category term="Android" scheme="https://cohleke.github.io/tags/Android/"/>
-    
       <category term="Fingerprint" scheme="https://cohleke.github.io/tags/Fingerprint/"/>
     
       <category term="指纹" scheme="https://cohleke.github.io/tags/%E6%8C%87%E7%BA%B9/"/>
+    
+      <category term="Android" scheme="https://cohleke.github.io/tags/Android/"/>
     
   </entry>
   
@@ -119,9 +119,9 @@
       <category term="Android" scheme="https://cohleke.github.io/categories/Android/"/>
     
     
-      <category term="Activity" scheme="https://cohleke.github.io/tags/Activity/"/>
-    
       <category term="Android" scheme="https://cohleke.github.io/tags/Android/"/>
+    
+      <category term="Activity" scheme="https://cohleke.github.io/tags/Activity/"/>
     
   </entry>
   
