@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等） | 科长 | 种一棵树最好的时间是十年前，其次是现在。</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="JavaEE,Spring">
+    <meta name="description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析：  Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
+<meta name="keywords" content="JavaEE,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）">
+<meta property="og:url" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/index.html">
+<meta property="og:site_name" content="科长">
+<meta property="og:description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析：  Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-1.png">
+<meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-2.png">
+<meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-3.png">
+<meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-1.png">
+<meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-2.png">
+<meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-5.png">
+<meta property="og:updated_time" content="2018-12-19T08:33:58.747Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）">
+<meta name="twitter:description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析：  Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
+<meta name="twitter:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-1.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="科长" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">科长</h5>
+          <a href="mailto:gzuzqd@gmail.com" title="gzuzqd@gmail.com" class="mail">gzuzqd@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/movies"  >
+                <i class="icon icon-lg icon-Movies"></i>
+                观影记录
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-12-18T06:59:41.000Z" itemprop="datePublished" class="page-time">
+  2018-12-18
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaEE/">JavaEE</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#手动实现Quartz集群解决方案"><span class="post-toc-number">1.</span> <span class="post-toc-text">手动实现Quartz集群解决方案</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#开发环境"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">开发环境</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Quartz基本原理"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">Quartz基本原理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#核心元素"><span class="post-toc-number">1.3.1.</span> <span class="post-toc-text">核心元素</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#核心元素间关系"><span class="post-toc-number">1.3.2.</span> <span class="post-toc-text">核心元素间关系</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主要线程"><span class="post-toc-number">1.3.3.</span> <span class="post-toc-text">主要线程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数据存储"><span class="post-toc-number">1.3.4.</span> <span class="post-toc-text">数据存储</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Quartz原生集群支持"><span class="post-toc-number">1.3.5.</span> <span class="post-toc-text">Quartz原生集群支持</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#原生集群支持的问题"><span class="post-toc-number">1.3.6.</span> <span class="post-toc-text">原生集群支持的问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#自定义实现集群化任务管理"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">自定义实现集群化任务管理</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Quartz集群解决方案（动态增改任务、服务器、日志监控等）"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-12-18 14:59:41" datetime="2018-12-18T06:59:41.000Z"  itemprop="datePublished">2018-12-18</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaEE/">JavaEE</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="手动实现Quartz集群解决方案"><a href="#手动实现Quartz集群解决方案" class="headerlink" title="手动实现Quartz集群解决方案"></a>手动实现Quartz集群解决方案</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。</p>
+<p>本文主要对以下问题分析：</p>
+<ul>
+<li>Quartz集群原理</li>
+<li>集群化服务器下的任务解决方案</li>
+<li>Quartz原生集群方案的弊端</li>
+<li>自定义实现集群化任务管理</li>
+</ul>
+<p>希望读者具备：</p>
+<ul>
+<li>Java反射原理知识</li>
+<li>JavaEE开发经验</li>
+<li>Quartz集成经验</li>
+<li>HTML5知识</li>
+</ul>
+<h2 id="开发环境"><a href="#开发环境" class="headerlink" title="开发环境"></a>开发环境</h2><p>JDK 1.8+</p>
+<p>Spring版本 3.2 +</p>
+<p>Tomcat 8.5.32</p>
+<p>Quartz版本 2.2.1+</p>
+<p>Gradle3.5+</p>
+<p>IntelliJ IDEA 2018.2.6</p>
+<p>Gradle中必须引入quartz-jobs</p>
+<pre><code>&apos;org.quartz-scheduler:quartz:2.2.1&apos;, 
+&apos;org.quartz-scheduler:quartz-jobs:2.2.1&apos;, 
+</code></pre><p>Spring配置中引入注册bean<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;schedulerFactoryBean&quot;</span><br><span class="line">class=&quot;org.springframework.scheduling.quartz.SchedulerFactoryBean&quot; /&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Quartz基本原理"><a href="#Quartz基本原理" class="headerlink" title="Quartz基本原理"></a>Quartz基本原理</h2><h3 id="核心元素"><a href="#核心元素" class="headerlink" title="核心元素"></a>核心元素</h3><p>Quartz核心要素有Scheduler、Trigger、Job、JobDetail，其中trigger和job、jobDetail为元数据，而Scheduler为实际进行调度的控制器。</p>
+<ul>
+<li>Trigger</li>
+</ul>
+<p>Trigger用于定义调度任务的时间规则，在Quartz中主要有四种类型的Trigger：SimpleTrigger、CronTrigger、DataIntervalTrigger和NthIncludedTrigger。</p>
+<ul>
+<li>Job&amp;Jodetail</li>
+</ul>
+<p>Quartz将任务分为Job、JobDetail两部分，其中Job用来定义任务的执行逻辑，而JobDetail用来描述Job的定义（例如Job接口的实现类以及其他相关的静态信息）。对Quartz而言，主要有两种类型的Job，StateLessJob、StateFulJob</p>
+<ul>
+<li>Scheduler</li>
+</ul>
+<p>实际执行调度逻辑的控制器，Quartz提供了DirectSchedulerFactory和StdSchedulerFactory等工厂类，用于支持Scheduler相关对象的产生。</p>
+<h3 id="核心元素间关系"><a href="#核心元素间关系" class="headerlink" title="核心元素间关系"></a>核心元素间关系</h3><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-1.png" title="点击 核心元素间关系">
+<h3 id="主要线程"><a href="#主要线程" class="headerlink" title="主要线程"></a>主要线程</h3><p>在Quartz中，有两类线程，也即执行线程和调度线程，其中执行任务的线程通常用一个线程池维护。线程间关系如下图所示。<br><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-2.png" title="点击 线程间关系"></p>
+<p>在quartz中，Scheduler调度线程主要有两个：regular Scheduler Thread（执行常规调度）和Misfire Scheduler Thread（执行错失的任务）。其中Regular Thread 轮询Trigger，如果有将要触发的Trigger，则从任务线程池中获取一个空闲线程，然后执行与改Trigger关联的job；Misfire Thraed则是扫描所有的trigger，查看是否有错失的，如果有的话，根据一定的策略进行处理。</p>
+<h3 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h3><p>Quartz中的trigger和job需要存储下来才能被使用。Quartz中有两种存储方式：RAMJobStore,JobStoreSupport，其中RAMJobStore是将trigger和job存储在内存中，而JobStoreSupport是基于jdbc将trigger和job存储到数据库中。RAMJobStore的存取速度非常快，但是由于其在系统被停止后所有的数据都会丢失，所以在集群应用中，必须使用JobStoreSupport。其中表结构如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Table name</th>
+<th style="text-align:right">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">QRTZ_CALENDARS</td>
+<td style="text-align:right">存储Quartz的Calendar信息</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_CRON_TRIGGERS</td>
+<td style="text-align:right">存储CronTrigger，包括Cron表达式和时区信息</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_FIRED_TRIGGERS</td>
+<td style="text-align:right">存储与已触发的Trigger相关的状态信息，以及相联Job的执行信息</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_PAUSED_TRIGGER_GRPS</td>
+<td style="text-align:right">存储已暂停的Trigger组的信息</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_SCHEDULER_STATE</td>
+<td style="text-align:right">存储少量的有关Scheduler的状态信息，和别的Scheduler实例</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_LOCKS</td>
+<td style="text-align:right">存储程序的悲观锁的信息</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_JOB_DETAILS</td>
+<td style="text-align:right">存储每一个已配置的Job的详细信息</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_SIMPLE_TRIGGERS</td>
+<td style="text-align:right">存储简单的Trigger，包括重复次数、间隔、以及已触的次数</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_BLOG_TRIGGERS</td>
+<td style="text-align:right">Trigger作为Blob类型存储</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_TRIGGERS</td>
+<td style="text-align:right">存储已配置的Trigger的信息</td>
+</tr>
+<tr>
+<td style="text-align:left">QRTZ_SIMPROP_TRIGGERS</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Quartz原生集群支持"><a href="#Quartz原生集群支持" class="headerlink" title="Quartz原生集群支持"></a>Quartz原生集群支持</h3><p>一个Quartz集群中的每个节点是一个独立的Quartz应用，它又管理着其他的节点。这就意味着你必须对每个节点分别启动或停止。Quartz集群中，独立的Quartz节点并不与另一其的节点或是管理节点通信，而是通过相同的数据库表来感知到另一Quartz应用的。<br><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-3.png" title="点击 原生集群支持"></p>
+<h3 id="原生集群支持的问题"><a href="#原生集群支持的问题" class="headerlink" title="原生集群支持的问题"></a>原生集群支持的问题</h3><p>原生集群支持需要在数据库新增十二张表，且每个任务调度是随机分配服务器，加上部分任务执行时间过长可能超时报错等等原因，可定制程度不高，固未采用原生集群方案。下面开始手写方案。</p>
+<h2 id="自定义实现集群化任务管理"><a href="#自定义实现集群化任务管理" class="headerlink" title="自定义实现集群化任务管理"></a>自定义实现集群化任务管理</h2><p>先展示成果</p>
+<img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-1.png" title="点击 管理首页">
+<p>新增批次</p>
+<img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-2.png" title="点击 新增批次">
+<p>立即运行一次 考虑到服务器不同配置。可自定义端口。<br><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-5.png" title="点击 新增批次"></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-12-19T08:33:58.747Z" itemprop="dateUpdated">2018-12-19 16:33:58</time>
+</span><br>
+
+
+        
+        如需转发请与我联系，获得允许之后请注明出处：<a href="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/" target="_blank" rel="external">https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://cohleke.github.io">
+            <img src="/img/avatar.jpg" alt="科长">
+            科长
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaEE/">JavaEE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/">Spring</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/&title=《手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/&title=《手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）》 — 科长&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）》 — 科长&url=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/&via=https://cohleke.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/04/21/kotlin/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">常用排序算法kotlin实现</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>科长 &copy; 2018</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/&title=《手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）》 — 科长&pic=https://cohleke.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/&title=《手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）》 — 科长&source=" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）》 — 科长&url=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/&via=https://cohleke.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ4AAAEOCAAAAABd2qZ5AAAD7klEQVR42u3ay2rkMBAF0Pz/T/dAdsNM3PdWSQ2B41VIumXpOFCux9dXfL2+r39/89Pvnz/5erye129X+Lpx4cCBAweO4Kjt5l7B9fzdfFfJOpvd4sCBAweOGxzPwTXZypvbxA8gD94zuDdnx4EDBw4cH+TID9YG1PZh5EkmDhw4cOD4LRztX/NS3Su+cmgcOHDgwPF5jjxkzsLqczsqb1a1iBdrpThw4MCBo4t3UdD6LT9fnO/AgQMHDhyjZKlNwNrULv/W2RP9dXccOHDgwLHmmKVkeYI3O9KsNdUWIouMFgcOHDhwxBxJwS4PurNUqsXdjF+8WR8HDhw4cKw52hbR8xaTNlILNzvY5gHgwIEDB44Nx6nxhU0xLk/5NklmdC4cOHDgwHGUo73xPrXLWdtkLy8O/hhoceDAgQPHgqMNTnnL6kaJcNPWepM64sCBAweOQxxt+392+H34bEuT7QPAgQMHDhxnOZLt5nwtRB5KN4ncmyQTBw4cOHAc5WgHGvLGT87Rrp9gFQVKHDhw4MCx5jgVIPOt52lVm+btAzwOHDhw4LjB0SZp+UaTQ8742gJlcVIcOHDgwDHiaJOfWUupLSmeCpn1WwYOHDhw4FhwDMtkAVYeVvNg34bSejgDBw4cOHCsOZKbtYMIbQjfB++2OBilrDhw4MCBY8QxG1xIQubZ1lHeysrXr987cODAgQNHzJEcux1EuBGG26BbJ5M4cODAgeMQx6y41hYKN+snLbEDrSwcOHDgwHGZ4zW68gPkaVuCux96wIEDBw4ce452JK4da5ilhbNAm+8henXAgQMHDhwLjqQ8N0uQkprbLGznx6vHHXDgwIEDx4Ijh2iH0vJm1b7J1L5THPi/wIEDBw4cjxybklz++ed0qx1xyNPOolCIAwcOHDgucGxulqdSeROoHZ7IU1AcOHDgwHGDo03b9klaPb5WFgc3AxM4cODAgWPPsR81aIch2lSwTSk34304cODAgWPPsVmiDcOz1TbDE/nKP/bicODAgQNHyZFvaFaAmw3YtTRteTEqCOLAgQMHjgVHsrm8LzPjPls0bCn/UxzEgQMHDhwjjnxYoT1qPUBwO4jmXTgcOHDgwLHg2BQB98E1GZjbj1MUgxc4cODAgWPNcSPgJWG7bRflrwKbx4YDBw4cOE5xtMMKrXE+4tCWHdvAHAVsHDhw4MBxiOM5uOYBLN9uHtpnYXi2Pg4cOHDg+CRHG27zz+ftopapDcM4cODAgePzHG1a1RYQ26C+SfMOBFocOHDgwPE4KtcW8pJSYFI0bNO2fap5rFaKAwcOHDjWAw2zZClPz3Lutuw4+xYOHDhw4Ig5/gBq7e3QiMcsCAAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '你即将失去你的宝宝！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '没有什么我不能原谅的!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

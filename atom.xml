@@ -2,31 +2,44 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>科长</title>
   
-  <subtitle>会写一点代码</subtitle>
+  <subtitle>种一棵树最好的时间是十年前，其次是现在。</subtitle>
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://cohleke.github.io/"/>
-  <updated>2018-08-20T08:28:23.932Z</updated>
+  <updated>2018-12-19T08:33:58.747Z</updated>
   <id>https://cohleke.github.io/</id>
   
   <author>
-    <name>柯彰</name>
+    <name>科长</name>
     
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Android获取设备信息填坑</title>
-    <link href="https://cohleke.github.io/2018/08/20/Android%E8%8E%B7%E5%8F%96%E8%AE%BE%E5%A4%87%E4%BF%A1%E6%81%AF%E5%A1%AB%E5%9D%91/"/>
-    <id>https://cohleke.github.io/2018/08/20/Android获取设备信息填坑/</id>
-    <published>2018-08-20T08:28:23.000Z</published>
-    <updated>2018-08-20T08:28:23.932Z</updated>
+    <title>手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）</title>
+    <link href="https://cohleke.github.io/2018/12/18/Quartz%E9%9B%86%E7%BE%A4%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%88%E5%8A%A8%E6%80%81%E5%A2%9E%E6%94%B9%E4%BB%BB%E5%8A%A1%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8%E3%80%81%E6%97%A5%E5%BF%97%E7%9B%91%E6%8E%A7%E7%AD%89%EF%BC%89/"/>
+    <id>https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/</id>
+    <published>2018-12-18T06:59:41.000Z</published>
+    <updated>2018-12-19T08:33:58.747Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="手动实现Quartz集群解决方案"><a href="#手动实现Quartz集群解决方案" class="headerlink" title="手动实现Quartz集群解决方案"></a>手动实现Quartz集群解决方案</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。</p><p>本文主要对以下问题分析：</p><ul><li>Quartz集群原理</li><li>集群化服务器下的任务解决方案</li><li>Quartz原生集群方案的弊端</li><li>自定义实现集群化任务管理</li></ul><p>希望读者具备：</p><ul><li>Java反射原理知识</li><li>JavaEE开发经验</li><li>Quartz集成经验</li><li>HTML5知识</li></ul><h2 id="开发环境"><a href="#开发环境" class="headerlink" title="开发环境"></a>开发环境</h2><p>JDK 1.8+</p><p>Spring版本 3.2 +</p><p>Tomcat 8.5.32</p><p>Quartz版本 2.2.1+</p><p>Gradle3.5+</p><p>IntelliJ IDEA 2018.2.6</p><p>Gradle中必须引入quartz-jobs</p><pre><code>&apos;org.quartz-scheduler:quartz:2.2.1&apos;, &apos;org.quartz-scheduler:quartz-jobs:2.2.1&apos;, </code></pre><p>Spring配置中引入注册bean<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;schedulerFactoryBean&quot;</span><br><span class="line">class=&quot;org.springframework.scheduling.quartz.SchedulerFactoryBean&quot; /&gt;</span><br></pre></td></tr></table></figure></p><h2 id="Quartz基本原理"><a href="#Quartz基本原理" class="headerlink" title="Quartz基本原理"></a>Quartz基本原理</h2><h3 id="核心元素"><a href="#核心元素" class="headerlink" title="核心元素"></a>核心元素</h3><p>Quartz核心要素有Scheduler、Trigger、Job、JobDetail，其中trigger和job、jobDetail为元数据，而Scheduler为实际进行调度的控制器。</p><ul><li>Trigger</li></ul><p>Trigger用于定义调度任务的时间规则，在Quartz中主要有四种类型的Trigger：SimpleTrigger、CronTrigger、DataIntervalTrigger和NthIncludedTrigger。</p><ul><li>Job&amp;Jodetail</li></ul><p>Quartz将任务分为Job、JobDetail两部分，其中Job用来定义任务的执行逻辑，而JobDetail用来描述Job的定义（例如Job接口的实现类以及其他相关的静态信息）。对Quartz而言，主要有两种类型的Job，StateLessJob、StateFulJob</p><ul><li>Scheduler</li></ul><p>实际执行调度逻辑的控制器，Quartz提供了DirectSchedulerFactory和StdSchedulerFactory等工厂类，用于支持Scheduler相关对象的产生。</p><h3 id="核心元素间关系"><a href="#核心元素间关系" class="headerlink" title="核心元素间关系"></a>核心元素间关系</h3><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-1.png" title="点击 核心元素间关系"><h3 id="主要线程"><a href="#主要线程" class="headerlink" title="主要线程"></a>主要线程</h3><p>在Quartz中，有两类线程，也即执行线程和调度线程，其中执行任务的线程通常用一个线程池维护。线程间关系如下图所示。<br><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-2.png" title="点击 线程间关系"></p><p>在quartz中，Scheduler调度线程主要有两个：regular Scheduler Thread（执行常规调度）和Misfire Scheduler Thread（执行错失的任务）。其中Regular Thread 轮询Trigger，如果有将要触发的Trigger，则从任务线程池中获取一个空闲线程，然后执行与改Trigger关联的job；Misfire Thraed则是扫描所有的trigger，查看是否有错失的，如果有的话，根据一定的策略进行处理。</p><h3 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h3><p>Quartz中的trigger和job需要存储下来才能被使用。Quartz中有两种存储方式：RAMJobStore,JobStoreSupport，其中RAMJobStore是将trigger和job存储在内存中，而JobStoreSupport是基于jdbc将trigger和job存储到数据库中。RAMJobStore的存取速度非常快，但是由于其在系统被停止后所有的数据都会丢失，所以在集群应用中，必须使用JobStoreSupport。其中表结构如下表所示。</p><table><thead><tr><th style="text-align:left">Table name</th><th style="text-align:right">Description</th></tr></thead><tbody><tr><td style="text-align:left">QRTZ_CALENDARS</td><td style="text-align:right">存储Quartz的Calendar信息</td></tr><tr><td style="text-align:left">QRTZ_CRON_TRIGGERS</td><td style="text-align:right">存储CronTrigger，包括Cron表达式和时区信息</td></tr><tr><td style="text-align:left">QRTZ_FIRED_TRIGGERS</td><td style="text-align:right">存储与已触发的Trigger相关的状态信息，以及相联Job的执行信息</td></tr><tr><td style="text-align:left">QRTZ_PAUSED_TRIGGER_GRPS</td><td style="text-align:right">存储已暂停的Trigger组的信息</td></tr><tr><td style="text-align:left">QRTZ_SCHEDULER_STATE</td><td style="text-align:right">存储少量的有关Scheduler的状态信息，和别的Scheduler实例</td></tr><tr><td style="text-align:left">QRTZ_LOCKS</td><td style="text-align:right">存储程序的悲观锁的信息</td></tr><tr><td style="text-align:left">QRTZ_JOB_DETAILS</td><td style="text-align:right">存储每一个已配置的Job的详细信息</td></tr><tr><td style="text-align:left">QRTZ_SIMPLE_TRIGGERS</td><td style="text-align:right">存储简单的Trigger，包括重复次数、间隔、以及已触的次数</td></tr><tr><td style="text-align:left">QRTZ_BLOG_TRIGGERS</td><td style="text-align:right">Trigger作为Blob类型存储</td></tr><tr><td style="text-align:left">QRTZ_TRIGGERS</td><td style="text-align:right">存储已配置的Trigger的信息</td></tr><tr><td style="text-align:left">QRTZ_SIMPROP_TRIGGERS</td></tr></tbody></table><h3 id="Quartz原生集群支持"><a href="#Quartz原生集群支持" class="headerlink" title="Quartz原生集群支持"></a>Quartz原生集群支持</h3><p>一个Quartz集群中的每个节点是一个独立的Quartz应用，它又管理着其他的节点。这就意味着你必须对每个节点分别启动或停止。Quartz集群中，独立的Quartz节点并不与另一其的节点或是管理节点通信，而是通过相同的数据库表来感知到另一Quartz应用的。<br><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-3.png" title="点击 原生集群支持"></p><h3 id="原生集群支持的问题"><a href="#原生集群支持的问题" class="headerlink" title="原生集群支持的问题"></a>原生集群支持的问题</h3><p>原生集群支持需要在数据库新增十二张表，且每个任务调度是随机分配服务器，加上部分任务执行时间过长可能超时报错等等原因，可定制程度不高，固未采用原生集群方案。下面开始手写方案。</p><h2 id="自定义实现集群化任务管理"><a href="#自定义实现集群化任务管理" class="headerlink" title="自定义实现集群化任务管理"></a>自定义实现集群化任务管理</h2><p>先展示成果</p><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-1.png" title="点击 管理首页"><p>新增批次</p><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-2.png" title="点击 新增批次"><p>立即运行一次 考虑到服务器不同配置。可自定义端口。<br><img src="/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-5.png" title="点击 新增批次"></p>]]></content>
     
     <summary type="html">
     
+      
+      
+        &lt;h1 id=&quot;手动实现Quartz集群解决方案&quot;&gt;&lt;a href=&quot;#手动实现Quartz集群解决方案&quot; class=&quot;headerlink&quot; title=&quot;手动实现Quartz集群解决方案&quot;&gt;&lt;/a&gt;手动实现Quartz集群解决方案&lt;/h1&gt;&lt;h2 id=&quot;概述&quot;&gt;&lt;a hr
+      
+    
     </summary>
     
+      <category term="JavaEE" scheme="https://cohleke.github.io/categories/JavaEE/"/>
+    
+    
+      <category term="JavaEE" scheme="https://cohleke.github.io/tags/JavaEE/"/>
+    
+      <category term="Spring" scheme="https://cohleke.github.io/tags/Spring/"/>
     
   </entry>
   
