@@ -20,13 +20,13 @@
     
     
     <meta name="keywords" content="JavaEE,Spring">
-    <meta name="description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析：  Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
+    <meta name="description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析： Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
 <meta name="keywords" content="JavaEE,Spring">
 <meta property="og:type" content="article">
 <meta property="og:title" content="手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）">
 <meta property="og:url" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/index.html">
 <meta property="og:site_name" content="科长">
-<meta property="og:description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析：  Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
+<meta property="og:description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析： Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-1.png">
 <meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-2.png">
@@ -34,10 +34,10 @@
 <meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-1.png">
 <meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-2.png">
 <meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-5.png">
-<meta property="og:updated_time" content="2018-12-20T01:23:55.685Z">
+<meta property="og:updated_time" content="2018-12-24T10:01:27.809Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）">
-<meta name="twitter:description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析：  Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
+<meta name="twitter:description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析： Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
 <meta name="twitter:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/1-1.png">
     
         <link rel="alternate" type="application/atom+xml" title="科长" href="/atom.xml">
@@ -166,7 +166,7 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#手动实现Quartz集群解决方案"><span class="post-toc-number">1.</span> <span class="post-toc-text">手动实现Quartz集群解决方案</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#开发环境"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">开发环境</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Quartz基本原理"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">Quartz基本原理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#核心元素"><span class="post-toc-number">1.3.1.</span> <span class="post-toc-text">核心元素</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#核心元素间关系"><span class="post-toc-number">1.3.2.</span> <span class="post-toc-text">核心元素间关系</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主要线程"><span class="post-toc-number">1.3.3.</span> <span class="post-toc-text">主要线程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数据存储"><span class="post-toc-number">1.3.4.</span> <span class="post-toc-text">数据存储</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Quartz原生集群支持"><span class="post-toc-number">1.3.5.</span> <span class="post-toc-text">Quartz原生集群支持</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#原生集群支持的问题"><span class="post-toc-number">1.3.6.</span> <span class="post-toc-text">原生集群支持的问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#自定义实现集群化任务管理"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">自定义实现集群化任务管理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#表结构设计"><span class="post-toc-number">1.4.1.</span> <span class="post-toc-text">表结构设计</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#新增批次"><span class="post-toc-number">1.4.2.</span> <span class="post-toc-text">新增批次</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#立即运行一次"><span class="post-toc-number">1.4.3.</span> <span class="post-toc-text">立即运行一次</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#待填坑"><span class="post-toc-number">1.5.</span> <span class="post-toc-text">待填坑</span></a></li></ol></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#手动实现Quartz集群解决方案"><span class="post-toc-number">1.</span> <span class="post-toc-text">手动实现Quartz集群解决方案</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#本文主要对以下问题分析："><span class="post-toc-number">1.1.1.</span> <span class="post-toc-text">本文主要对以下问题分析：</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#本文将实现以下功能："><span class="post-toc-number">1.1.2.</span> <span class="post-toc-text">本文将实现以下功能：</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#希望读者具备："><span class="post-toc-number">1.1.3.</span> <span class="post-toc-text">希望读者具备：</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#开发环境"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">开发环境</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Quartz基本原理"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">Quartz基本原理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#核心元素"><span class="post-toc-number">1.3.1.</span> <span class="post-toc-text">核心元素</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#核心元素间关系"><span class="post-toc-number">1.3.2.</span> <span class="post-toc-text">核心元素间关系</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主要线程"><span class="post-toc-number">1.3.3.</span> <span class="post-toc-text">主要线程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数据存储"><span class="post-toc-number">1.3.4.</span> <span class="post-toc-text">数据存储</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Quartz原生集群支持"><span class="post-toc-number">1.3.5.</span> <span class="post-toc-text">Quartz原生集群支持</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#原生集群支持的问题"><span class="post-toc-number">1.3.6.</span> <span class="post-toc-text">原生集群支持的问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#自定义实现集群化任务管理"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">自定义实现集群化任务管理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#表结构设计"><span class="post-toc-number">1.4.1.</span> <span class="post-toc-text">表结构设计</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#新增批次"><span class="post-toc-number">1.4.2.</span> <span class="post-toc-text">新增批次</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#立即运行一次"><span class="post-toc-number">1.4.3.</span> <span class="post-toc-text">立即运行一次</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#反射机制手动装载Bean，-Autowired注解注入失败问题"><span class="post-toc-number">1.5.</span> <span class="post-toc-text">反射机制手动装载Bean，@Autowired注解注入失败问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Spring的三种装配Bean的方式"><span class="post-toc-number">1.5.1.</span> <span class="post-toc-text">Spring的三种装配Bean的方式</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#待填坑"><span class="post-toc-number">1.6.</span> <span class="post-toc-text">待填坑</span></a></li></ol></li></ol>
         </nav>
     </aside>
 
@@ -193,25 +193,26 @@
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
             <h1 id="手动实现Quartz集群解决方案"><a href="#手动实现Quartz集群解决方案" class="headerlink" title="手动实现Quartz集群解决方案"></a>手动实现Quartz集群解决方案</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。</p>
-<p>本文主要对以下问题分析：</p>
-<ul>
+<h3 id="本文主要对以下问题分析："><a href="#本文主要对以下问题分析：" class="headerlink" title="本文主要对以下问题分析："></a>本文主要对以下问题分析：</h3><ul>
 <li>Quartz集群原理</li>
 <li>集群化服务器下的任务解决方案</li>
 <li>Quartz原生集群方案的弊端</li>
 <li>自定义实现集群化任务管理</li>
+<li><font color="#DC143C">反射机制手动装载Bean，@Autowired注解注入失败问题</font>
+
+</li>
 </ul>
-<p>本文将实现以下功能：</p>
-<ul>
+<h3 id="本文将实现以下功能："><a href="#本文将实现以下功能：" class="headerlink" title="本文将实现以下功能："></a>本文将实现以下功能：</h3><ul>
 <li>动态管理定时任务，启动、暂停、修改等</li>
 <li>实时切换任务执行服务器</li>
 <li>任务日志管理，运行监控、报警</li>
 </ul>
-<p>希望读者具备：</p>
-<ul>
-<li>Java反射原理知识</li>
+<h3 id="希望读者具备："><a href="#希望读者具备：" class="headerlink" title="希望读者具备："></a>希望读者具备：</h3><ul>
+<li>理解Spring Bean的装配方式与生命周期</li>
+<li>理解Java反射机制</li>
 <li>JavaEE开发经验</li>
 <li>Quartz集成经验</li>
-<li>JavaWeb知识</li>
+<li>JavaWeb开发经验</li>
 </ul>
 <h2 id="开发环境"><a href="#开发环境" class="headerlink" title="开发环境"></a>开发环境</h2><p>JDK 1.8+</p>
 <p>Spring版本 3.2 +</p>
@@ -326,6 +327,12 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">invokMethod</span><span class="params">(JobDetail scheduleJob)</span> </span>&#123;</span><br><span class="line">    String ip = getLocalHostIP();</span><br><span class="line">    Object object = <span class="keyword">null</span>;</span><br><span class="line">    Class clazz = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (!ip.equals(scheduleJob.getIp())) &#123;</span><br><span class="line">        log.error(<span class="string">"任务名称 = ["</span> + scheduleJob.getJobName() + <span class="string">"]---------------未启动成功，不在执行IP范围！！！"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.isNotBlank(scheduleJob.getSpringId())) &#123;</span><br><span class="line">        object = SpringUtils.getBean(scheduleJob.getSpringId());</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (StringUtils.isNotBlank(scheduleJob.getBeanClass())) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            clazz = Class.forName(scheduleJob.getBeanClass());</span><br><span class="line">            object = clazz.newInstance();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (object == <span class="keyword">null</span>) &#123;</span><br><span class="line">        log.error(<span class="string">"任务名称 = ["</span> + scheduleJob.getJobName() + <span class="string">"]---------------未启动成功，请检查是否配置正确！！！"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    clazz = object.getClass();</span><br><span class="line">    Method method = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        method = clazz.getDeclaredMethod(scheduleJob.getMethodName());</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">        log.error(<span class="string">"任务名称 = ["</span> + scheduleJob.getJobName() + <span class="string">"]---------------未启动成功，方法名设置错误！！！"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (SecurityException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (method != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            method.invoke(object);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    log.info(<span class="string">"任务名称 = ["</span> + scheduleJob.getJobName() + <span class="string">"]----------启动成功"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="反射机制手动装载Bean，-Autowired注解注入失败问题"><a href="#反射机制手动装载Bean，-Autowired注解注入失败问题" class="headerlink" title="反射机制手动装载Bean，@Autowired注解注入失败问题"></a>反射机制手动装载Bean，@Autowired注解注入失败问题</h2><h3 id="Spring的三种装配Bean的方式"><a href="#Spring的三种装配Bean的方式" class="headerlink" title="Spring的三种装配Bean的方式"></a>Spring的三种装配Bean的方式</h3><ul>
+<li>在XML中显式配置</li>
+<li>在Java的接口和类中实现配置</li>
+<li>隐式Bean的发现机制和自动装配原则</li>
+</ul>
+<p>在现实工作中，以上三种方式都会被用到，并且在学习和工作总常常混合使用，所以需要知道3中方式的优先级，也就是应该怎么选择使用哪种方式去把Bean发布到Spring IoC容器中。</p>
 <h2 id="待填坑"><a href="#待填坑" class="headerlink" title="待填坑"></a>待填坑</h2>
         </div>
 
@@ -334,7 +341,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2018-12-20T01:23:55.685Z" itemprop="dateUpdated">2018-12-20 09:23:55</time>
+    最后更新时间：<time datetime="2018-12-24T10:01:27.809Z" itemprop="dateUpdated">2018-12-24 18:01:27</time>
 </span><br>
 
 
