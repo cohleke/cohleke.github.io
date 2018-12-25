@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-2.png">
 <meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/2-5.png">
 <meta property="og:image" content="https://cohleke.github.io/2018/12/18/Quartz集群解决方案（动态增改任务、服务器、日志监控等）/3-1.png">
-<meta property="og:updated_time" content="2018-12-25T02:32:25.269Z">
+<meta property="og:updated_time" content="2018-12-25T02:38:03.433Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="手动实现Quartz集群解决方案（动态增改任务、切换服务器、日志监控等）">
 <meta name="twitter:description" content="手动实现Quartz集群解决方案概述在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。 本文主要对以下问题分析： Quartz集群原理 集群化服务器下的任务解决方案 Quartz原生集群方案的弊端">
@@ -191,6 +191,7 @@
 </span>
 
 
+			
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
             <h1 id="手动实现Quartz集群解决方案"><a href="#手动实现Quartz集群解决方案" class="headerlink" title="手动实现Quartz集群解决方案"></a>手动实现Quartz集群解决方案</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>在企业项目应用中必然要集成定时任务，绝大部分JavaEE工程采用Quartz和Spring的相应配置即可完成，若要修改任务的执行时间、执行服务器、任务的启动暂停等操作需要改变配置代码甚至需要重启服务器，本文是集群化服务器下动态的处理定时任务的一个实现。</p>
@@ -346,7 +347,11 @@
 <ul>
 <li>在XML中显式配置 </li>
 </ul>
-<figure class="highlight plain"><figcaption><span>id</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- @PostConstruct注解方式</span><br><span class="line"></span><br><span class="line">```Java</span><br><span class="line">@Component </span><br><span class="line">public class TestUtils &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    private ItemService itemService;</span><br><span class="line">    </span><br><span class="line">    @Autowired</span><br><span class="line">    private ItemMapper itemMapper;</span><br><span class="line">    </span><br><span class="line">    public static TestUtils testUtils;</span><br><span class="line">    </span><br><span class="line">    @PostConstruct</span><br><span class="line">    public void init() &#123;    </span><br><span class="line">        testUtils = this;</span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">    //utils工具类中使用service和mapper接口的方法例子，用&quot;testUtils.xxx.方法&quot; 就可以了      </span><br><span class="line">    public static void test(Item record)&#123;</span><br><span class="line">        testUtils.itemMapper.insert(record);</span><br><span class="line">        testUtils.itemService.queryAll();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"testUtils"</span> <span class="attr">class</span>=<span class="string">"这里写utils类的包全路径名"</span> <span class="attr">init-method</span>=<span class="string">"init"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>@PostConstruct注解方式</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span> </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestUtils</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ItemService itemService;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ItemMapper itemMapper;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> TestUtils testUtils;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;    </span><br><span class="line">        testUtils = <span class="keyword">this</span>;</span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//utils工具类中使用service和mapper接口的方法例子，用"testUtils.xxx.方法" 就可以了      </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(Item record)</span></span>&#123;</span><br><span class="line">        testUtils.itemMapper.insert(record);</span><br><span class="line">        testUtils.itemService.queryAll();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p> 结论：<font color="#DC143C">依赖Spring容器实例化与自己用反射实例化是两种各自独立的方式，互不干涉。</font></p>
 <h2 id="待填坑"><a href="#待填坑" class="headerlink" title="待填坑"></a>待填坑</h2>
         </div>
@@ -356,7 +361,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2018-12-25T02:32:25.269Z" itemprop="dateUpdated">2018-12-25 10:32:25</time>
+    最后更新时间：<time datetime="2018-12-25T02:38:03.433Z" itemprop="dateUpdated">2018-12-25 10:38:03</time>
 </span><br>
 
 
