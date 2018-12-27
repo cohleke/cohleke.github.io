@@ -20,20 +20,18 @@
     
     
     <meta name="keywords" content="Android,Fingerprint,指纹">
-    <meta name="description" content="待填坑 指纹识别适配指纹识别适配会有很多问题，这些问题可以从下面三种情况中看出:  Google官方支持指纹识别的标准接口是在Android6.0开始的，如果各个厂商都升级到6.0并且硬件上都给予支持，那么我们按照标准的指纹识别接口使用就可以了。 如果在android6.0发布以后，手机厂商来不及升级，但是工程师们参考了官方指纹识别的代码，把代码移植到他们的6.0版本以下的系统，或者参照Googl">
+    <meta name="description" content="The article has been encrypted, please enter your password to view.">
 <meta name="keywords" content="Android,Fingerprint,指纹">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android 指纹适配">
 <meta property="og:url" content="https://cohleke.github.io/2018/03/12/Android-指纹相关/index.html">
 <meta property="og:site_name" content="科长">
-<meta property="og:description" content="待填坑 指纹识别适配指纹识别适配会有很多问题，这些问题可以从下面三种情况中看出:  Google官方支持指纹识别的标准接口是在Android6.0开始的，如果各个厂商都升级到6.0并且硬件上都给予支持，那么我们按照标准的指纹识别接口使用就可以了。 如果在android6.0发布以后，手机厂商来不及升级，但是工程师们参考了官方指纹识别的代码，把代码移植到他们的6.0版本以下的系统，或者参照Googl">
+<meta property="og:description" content="The article has been encrypted, please enter your password to view.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://cohleke.github.io/2018/03/12/Android-指纹相关/01.png">
-<meta property="og:updated_time" content="2018-03-13T03:02:04.355Z">
+<meta property="og:updated_time" content="2018-12-27T01:55:46.422Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android 指纹适配">
-<meta name="twitter:description" content="待填坑 指纹识别适配指纹识别适配会有很多问题，这些问题可以从下面三种情况中看出:  Google官方支持指纹识别的标准接口是在Android6.0开始的，如果各个厂商都升级到6.0并且硬件上都给予支持，那么我们按照标准的指纹识别接口使用就可以了。 如果在android6.0发布以后，手机厂商来不及升级，但是工程师们参考了官方指纹识别的代码，把代码移植到他们的6.0版本以下的系统，或者参照Googl">
-<meta name="twitter:image" content="https://cohleke.github.io/2018/03/12/Android-指纹相关/01.png">
+<meta name="twitter:description" content="The article has been encrypted, please enter your password to view.">
     
         <link rel="alternate" type="application/atom+xml" title="科长" href="/atom.xml">
     
@@ -158,13 +156,6 @@
 
 <div class="container body-wrap">
     
-    <aside class="post-widget">
-        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
-            <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#待填坑"><span class="post-toc-number">1.</span> <span class="post-toc-text">待填坑</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#指纹识别适配"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">指纹识别适配</span></a></li></ol></li></ol>
-        </nav>
-    </aside>
-
 
 <article id="post-Android-指纹相关"
   class="post-article article-type-post fade" itemprop="blogPost">
@@ -177,7 +168,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">307字</span>
+        <span class="post-count">134字</span>
       </span>
     </span>
 
@@ -205,14 +196,20 @@
 
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
-            <h1 id="待填坑"><a href="#待填坑" class="headerlink" title="待填坑"></a>待填坑</h1><img src="/2018/03/12/Android-指纹相关/01.png" title="demo">
-<h2 id="指纹识别适配"><a href="#指纹识别适配" class="headerlink" title="指纹识别适配"></a>指纹识别适配</h2><p>指纹识别适配会有很多问题，这些问题可以从下面三种情况中看出:</p>
-<ul>
-<li>Google官方支持指纹识别的标准接口是在Android6.0开始的，如果各个厂商都升级到6.0并且硬件上都给予支持，那么我们按照标准的指纹识别接口使用就可以了。</li>
-<li>如果在android6.0发布以后，手机厂商来不及升级，但是工程师们参考了官方指纹识别的代码，把代码移植到他们的6.0版本以下的系统，或者参照Google提供的接口自己实现了一套指纹识别机制，只是对开发者暴露的接口一样，这样就可以像使用标准接口一样使用，但是这种情况就难说了，实现不好的可能本身就有很多bug，适配起也比较麻烦，不过起码还是能用的。</li>
-<li>如果厂商在Google之前就已经做了指纹识别，那这种情况肯定不能使用官方标准接口，如果要适配这种设备，只能使用厂商提供的第三方指纹识别SDK。</li>
-</ul>
-
+            <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+<div id="hbe-security">
+  <div class="hbe-input-container">
+  <input type="password" class="hbe-form-control" id="pass" placeholder="Please enter the password to read the blog." />
+    <label for="pass">Please enter the password to read the blog.</label>
+    <div class="bottom-line"></div>
+  </div>
+</div>
+<div id="decryptionError" style="display: none;">Incorrect Password!</div>
+<div id="noContentError" style="display: none;">No content to display!</div>
+<div id="encrypt-blog" style="display:none">
+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
+</div>
+<script src="/lib/crypto-js.js"></script><script src="/lib/blog-encrypt.js"></script><link href="/css/blog-encrypt.css" rel="stylesheet" type="text/css">
         </div>
 
         <blockquote class="post-copyright">
@@ -220,7 +217,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2018-03-13T03:02:04.355Z" itemprop="dateUpdated">2018-03-13 11:02:04</time>
+    最后更新时间：<time datetime="2018-12-27T01:55:46.422Z" itemprop="dateUpdated">2018-12-27 09:55:46</time>
 </span><br>
 
 
@@ -266,7 +263,7 @@
         </a>
       </li>
       <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/03/12/Android-指纹相关/&title=《Android 指纹适配》 — 科长&source=" data-title=" QQ">
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/03/12/Android-指纹相关/&title=《Android 指纹适配》 — 科长&source=The article has been encrypted, please enter your password to view." data-title=" QQ">
           <i class="icon icon-qq"></i>
         </a>
       </li>
@@ -419,7 +416,7 @@
         </a>
       </li>
       <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/03/12/Android-指纹相关/&title=《Android 指纹适配》 — 科长&source=" data-title=" QQ">
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://cohleke.github.io/2018/03/12/Android-指纹相关/&title=《Android 指纹适配》 — 科长&source=The article has been encrypted, please enter your password to view." data-title=" QQ">
           <i class="icon icon-qq"></i>
         </a>
       </li>
