@@ -28,7 +28,7 @@
 <meta property="og:site_name" content="科长">
 <meta property="og:description" content="手动实现JSON Web Token认证机制概述当今大前端与服务器交互的过程中，集成Token认证机制，原因主要有以下几点：  避免用户多次输入密码、避免在终端直接存储用户的密码、实现自动登陆 标示客户端的请求是否合法 避开同源策略 避免 CSRF 攻击 Token 可以是无状态的，可以在多个服务间共享  本文主要对以下问题分析： Token认证原理 OAuth2基本概念及运作流程 JWT实现原理">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-12-30T03:43:37.483Z">
+<meta property="og:updated_time" content="2019-01-14T02:09:02.301Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OAuth2？JWT？手动实现JSON Web Token认证机制">
 <meta name="twitter:description" content="手动实现JSON Web Token认证机制概述当今大前端与服务器交互的过程中，集成Token认证机制，原因主要有以下几点：  避免用户多次输入密码、避免在终端直接存储用户的密码、实现自动登陆 标示客户端的请求是否合法 避开同源策略 避免 CSRF 攻击 Token 可以是无状态的，可以在多个服务间共享  本文主要对以下问题分析： Token认证原理 OAuth2基本概念及运作流程 JWT实现原理">
@@ -159,7 +159,7 @@
     <aside class="post-widget">
         <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#手动实现JSON-Web-Token认证机制"><span class="post-toc-number">1.</span> <span class="post-toc-text">手动实现JSON Web Token认证机制</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#本文主要对以下问题分析："><span class="post-toc-number">1.1.1.</span> <span class="post-toc-text">本文主要对以下问题分析：</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#本文将实现以下功能："><span class="post-toc-number">1.1.2.</span> <span class="post-toc-text">本文将实现以下功能：</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#希望读者具备："><span class="post-toc-number">1.1.3.</span> <span class="post-toc-text">希望读者具备：</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#开发环境"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">开发环境</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Token认证原理"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">Token认证原理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#待填坑"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">待填坑</span></a></li></ol></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#手动实现JSON-Web-Token认证机制"><span class="post-toc-number">1.</span> <span class="post-toc-text">手动实现JSON Web Token认证机制</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#本文主要对以下问题分析："><span class="post-toc-number">1.1.1.</span> <span class="post-toc-text">本文主要对以下问题分析：</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#本文将实现以下功能："><span class="post-toc-number">1.1.2.</span> <span class="post-toc-text">本文将实现以下功能：</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#希望读者具备："><span class="post-toc-number">1.1.3.</span> <span class="post-toc-text">希望读者具备：</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#开发环境"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">开发环境</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#关于OAuth2"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">关于OAuth2</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#OAuth2认证和授权过程"><span class="post-toc-number">1.3.1.</span> <span class="post-toc-text">OAuth2认证和授权过程</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#关于Token"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">关于Token</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#待填坑"><span class="post-toc-number">1.5.</span> <span class="post-toc-text">待填坑</span></a></li></ol></li></ol>
         </nav>
     </aside>
 
@@ -175,7 +175,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">321字</span>
+        <span class="post-count">860字</span>
       </span>
     </span>
 
@@ -184,7 +184,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">1分</span>
+        <span class="post-count">3分</span>
       </span>
     </span>
 </div>
@@ -230,7 +230,29 @@
 <li>CORS跨域经验</li>
 </ul>
 <h2 id="开发环境"><a href="#开发环境" class="headerlink" title="开发环境"></a>开发环境</h2><p>JDK 1.8 / Spring 3.2+ /redis / IntelliJ IDEA 2018.2.6</p>
-<h2 id="Token认证原理"><a href="#Token认证原理" class="headerlink" title="Token认证原理"></a>Token认证原理</h2><p>Token 是在服务端产生的，如果前端使用用户名/密码向服务端请求认证，服务端认证成功，那么在服务端会返回 Token 给前端。前端可以在每次请求的时候带上 Token 证明自己的合法地位。</p>
+<h2 id="关于OAuth2"><a href="#关于OAuth2" class="headerlink" title="关于OAuth2"></a>关于OAuth2</h2><p>OAuth 2 是一个授权框架，或称授权标准，它可以使第三方应用程序或客户端获得对HTTP服务上（例如 Google，GitHub ）用户帐户信息的有限访问权限。OAuth 2 通过将用户身份验证委派给托管用户帐户的服务以及授权客户端访问用户帐户进行工作。综上，OAuth 2 可以为 Web 应用 和桌面应用以及移动应用提供授权流程。</p>
+<h3 id="OAuth2认证和授权过程"><a href="#OAuth2认证和授权过程" class="headerlink" title="OAuth2认证和授权过程"></a>OAuth2认证和授权过程</h3><p>在认证和授权的过程中涉及的三方包括：</p>
+<ul>
+<li><p>服务提供方，用户使用服务提供方来存储受保护的资源，如照片，视频，联系人列表。</p>
+</li>
+<li><p>用户，存放在服务提供方的受保护的资源的拥有者</p>
+</li>
+<li><p>客户端，要访问服务提供方资源的第三方应用，通常是网站，如提供照片打印服务的网站。在认证过程之前，客户端要向服务提供者申请客户端标识。</p>
+</li>
+</ul>
+<p>使用OAuth进行认证和授权的过程如下:</p>
+<ol>
+<li>用户访问客户端的网站，想操作用户存放在服务提供方的资源。</li>
+<li>客户端向服务提供方请求一个临时令牌。</li>
+<li>.服务提供方验证客户端的身份后，授予一个临时令牌。</li>
+<li>客户端获得临时令牌后，将用户引导至服务提供方的授权页面请求用户授权。在这个过程中将临时令牌和客户端的回调连接发送给服务提供方。</li>
+<li>用户在服务提供方的网页上输入用户名和密码，然后授权该客户端访问所请求的资源。</li>
+<li>授权成功后，服务提供方引导用户返回客户端的网页。</li>
+<li>客户端根据临时令牌从服务提供方那里获取访问令牌。</li>
+<li>服务提供方根据临时令牌和用户的授权情况授予客户端访问令牌。</li>
+<li>客户端使用获取的访问令牌访问存放在服务提供方上的受保护的资源。</li>
+</ol>
+<h2 id="关于Token"><a href="#关于Token" class="headerlink" title="关于Token"></a>关于Token</h2><p>Token 是在服务端产生的，如果前端使用用户名/密码向服务端请求认证，服务端认证成功，那么在服务端会返回 Token 给前端。前端可以在每次请求的时候带上 Token 证明自己的合法地位。</p>
 <h2 id="待填坑"><a href="#待填坑" class="headerlink" title="待填坑"></a>待填坑</h2>
         </div>
 
@@ -239,7 +261,7 @@
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2018-12-30T03:43:37.483Z" itemprop="dateUpdated">2018-12-30 11:43:37</time>
+    最后更新时间：<time datetime="2019-01-14T02:09:02.301Z" itemprop="dateUpdated">2019-01-14 10:09:02</time>
 </span><br>
 
 
